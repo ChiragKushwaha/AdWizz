@@ -1,5 +1,7 @@
 # AdWizz — system-wide ad blocker for Android (local VPN)
 
+**Download:** https://chiragkushwaha.github.io/AdWizz/ · [latest APK](https://github.com/ChiragKushwaha/AdWizz/releases/latest/download/AdWizz.apk)
+
 Blocks ads and trackers in **every app** on the phone, without root, by running a local
 `VpnService` that filters DNS on-device. No traffic leaves the phone through a remote server.
 
@@ -53,12 +55,31 @@ dark = night sky with moon and stars. Tapping **Cast spell** makes the wizard ca
 
 ## Testing
 
-- `./gradlew testDebugUnitTest` — 170 JVM + Robolectric tests (core, data, share server, every UI tab,
+- `./gradlew testDebugUnitTest` — 201 JVM + Robolectric tests (core, data, share server, every UI tab,
   theme reveal, wizard stage, canyoublockit.com regression).
 - `./gradlew testDebugUnitTest -Plive=true` — also checks the live canyoublockit.com pages against the
   live blocklists.
 - `scripts/device-adblock-test.sh` — on a connected phone with a debug build running: opens the test
   site in Chrome and verifies every ad host was blocked and no pop-under opened.
+
+## Releasing (GitHub Releases + in-app updates)
+
+AdWizz isn't on Google Play (Play doesn't allow apps that block other apps' ads), so it updates
+itself from GitHub:
+
+1. Bump `versionCode` (+1) and `versionName` in `app/build.gradle.kts`, commit.
+2. `scripts/release.sh "What's new"` — tests, builds the signed APK, writes `docs/update.json`,
+   tags, pushes and creates the GitHub release with `AdWizz.apk`.
+3. GitHub Pages serves the new `update.json`; installed apps check it daily (from the VPN's
+   background job too), download + verify the APK (SHA-256 and signing key), and notify
+   "AdWizz vX is ready". One tap installs it; on Android 12+ every update after the first installs
+   without Android's extra confirm screen.
+
+Website: `docs/` (GitHub Pages → Deploy from branch → `main` / `docs`). Screenshots:
+`scripts/capture-screenshots.sh` with a phone connected.
+
+Release signing needs `keystore.properties` (gitignored) pointing at the upload key — back up
+both the key and that file; without them you can't ship updates.
 
 ## Build & install
 

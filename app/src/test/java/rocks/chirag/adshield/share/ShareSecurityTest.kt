@@ -58,11 +58,11 @@ class ShareSecurityTest {
     }
 
     @Test fun readLineLimitedBounds() {
-        fun read(s: String) = ShareServer.readLineLimited(s.byteInputStream())
+        fun read(s: String) = HttpIo.readLineLimited(s.byteInputStream())
         assertEquals("GET / HTTP/1.1", read("GET / HTTP/1.1\r\nHost: x\r\n"))
         assertEquals("", read("\r\n"))
         assertNull(read(""))
-        assertNull(read("a".repeat(ShareServer.MAX_LINE + 10) + "\n"))
+        assertNull(read("a".repeat(HttpIo.MAX_LINE + 10) + "\n"))
         assertEquals("tail", read("tail"))
     }
 }

@@ -15,7 +15,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import android.graphics.Color
+import android.content.Intent
 import rocks.chirag.adshield.data.Settings
+import rocks.chirag.adshield.data.UpdateNotifier
+import rocks.chirag.adshield.data.Updater
 import rocks.chirag.adshield.data.Status
 import rocks.chirag.adshield.data.VpnState
 import rocks.chirag.adshield.vpn.AdBlockVpnService
@@ -54,6 +57,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        handleUpdateTap(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleUpdateTap(intent)
+    }
+
+    /** Opened from the "update ready" notification: install right away (one tap, no extra screen). */
+    private fun handleUpdateTap(intent: Intent?) {
+        if (intent?.getBooleanExtra(UpdateNotifier.EXTRA_INSTALL, false) != true) return
+        intent.removeExtra(UpdateNotifier.EXTRA_INSTALL)
+        UpdateNotifier.cancel(this)
+        val app = applicationContext
+        Thread {
+            Updater.check(app)?.let { Updater.prepare(app, it) }
+            runOnUiThread { startUpdate(this) }
+        }.start()
     }
 
     private fun toggle() {

@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Self-updates from GitHub Releases (the app isn't distributed through Google Play). -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- Lets the "Excluded apps" picker list installed apps (Android 11+ package visibility). -->
     <queries>
@@ -61,6 +63,11 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <!-- Install results for self-updates. Not exported: only our own PendingIntent reaches it. -->
+        <receiver
+            android:name=".data.InstallResultReceiver"
+            android:exported="false" />
 
         <service
             android:name=".vpn.ToggleTileService"

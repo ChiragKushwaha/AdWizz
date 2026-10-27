@@ -18,9 +18,9 @@ class SecurityFuzzTest {
         repeat(1 + rnd.nextInt(4)) { if (b.isNotEmpty()) b[rnd.nextInt(b.size)] = rnd.nextInt(256).toByte() }
     }
 
-    private val validDns = CoreTest.sampleQuery("ads.example.com", 1)
-    private val validV4 = IpPacket.buildUdp(byteArrayOf(10, 111, 222.toByte(), 2), byteArrayOf(10, 111, 222.toByte(), 1), 4000, 53, validDns)
-    private val validV6 = IpPacket.buildUdp(ByteArray(16).also { it[0] = 0xfd.toByte() }, ByteArray(16).also { it[0] = 0xfd.toByte(); it[15] = 1 }, 4000, 53, validDns)
+    private val validDns = DnsFixtures.sampleQuery("ads.example.com", 1)
+    private val validV4 = IpBuilder.udp(byteArrayOf(10, 111, 222.toByte(), 2), byteArrayOf(10, 111, 222.toByte(), 1), 4000, 53, validDns)
+    private val validV6 = IpBuilder.udp(ByteArray(16).also { it[0] = 0xfd.toByte() }, ByteArray(16).also { it[0] = 0xfd.toByte(); it[15] = 1 }, 4000, 53, validDns)
 
     @Test fun ipParserNeverThrows() {
         repeat(50_000) {
@@ -28,15 +28,15 @@ class SecurityFuzzTest {
             val len = if (b.isEmpty()) 0 else rnd.nextInt(b.size + 1)
             val p = IpPacket.parse(b, len) ?: return@repeat
             // Whatever parsed must also be safe to answer.
-            if (p.protocol != IpPacket.PROTO_UDP) IpPacket.buildIcmpUnreachable(b.copyOf(len), len)
+            if (p.protocol != IpPacket.PROTO_UDP) IpBuilder.icmpUnreachable(b.copyOf(len), len)
         }
     }
 
     @Test fun dnsParsersNeverThrow() {
         repeat(50_000) {
             val b = if (it % 2 == 0) randomBytes(120) else mutated(validDns)
-            DnsMessage.cnameTargets(b)
-            DnsMessage.isResponseTo(validDns, b)
+            DnsResponse.cnameTargets(b)
+            DnsResponse.isResponseTo(validDns, b)
             val q = DnsMessage.parseQuery(b) ?: return@repeat
             DnsMessage.blockedResponse(b, q)
             DnsMessage.servFail(b, q)
@@ -54,11 +54,11 @@ class SecurityFuzzTest {
     @Test fun onlyTheMatchingAnswerIsAccepted() {
         val q = validDns
         val answer = DnsMessage.blockedResponse(q, DnsMessage.parseQuery(q)!!)
-        assertTrue(DnsMessage.isResponseTo(q, answer))
+        assertTrue(DnsResponse.isResponseTo(q, answer))
         val wrongId = answer.copyOf().also { it[0] = (it[0] + 1).toByte() }
-        assertFalse("spoofed answer with another ID", DnsMessage.isResponseTo(q, wrongId))
-        assertFalse("a query is not an answer", DnsMessage.isResponseTo(q, q))
-        assertFalse(DnsMessage.isResponseTo(q, ByteArray(5)))
-        assertFalse(DnsMessage.isResponseTo(null, answer))
+        assertFalse("spoofed answer with another ID", DnsResponse.isResponseTo(q, wrongId))
+        assertFalse("a query is not an answer", DnsResponse.isResponseTo(q, q))
+        assertFalse(DnsResponse.isResponseTo(q, ByteArray(5)))
+        assertFalse(DnsResponse.isResponseTo(null, answer))
     }
 }

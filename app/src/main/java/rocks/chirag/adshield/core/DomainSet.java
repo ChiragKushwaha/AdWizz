@@ -37,7 +37,7 @@ public final class DomainSet {
         int len = d.length();
         if (len == 0 || len > MAX_LEN) return false;
         if ((count + 1) > table.length * 0.7f) rehash(table.length * 2);
-        int h = hash(d, 0, len);
+        int h = DomainHash.of(d, 0, len);
         int mask = table.length - 1;
         int slot = h & mask;
         while (true) {
@@ -62,7 +62,7 @@ public final class DomainSet {
         int len = s.length() - start;
         if (len <= 0 || len > MAX_LEN || count == 0) return false;
         int mask = table.length - 1;
-        int slot = hash(s, start, len) & mask;
+        int slot = DomainHash.of(s, start, len) & mask;
         while (true) {
             int off = table[slot];
             if (off == 0) return false;
@@ -90,39 +90,13 @@ public final class DomainSet {
         return true;
     }
 
-    /** FNV-1a, then a final mix so linear probing doesn't cluster. */
-    private static int hash(CharSequence s, int start, int len) {
-        int h = 0x811C9DC5;
-        for (int i = 0; i < len; i++) {
-            h ^= s.charAt(start + i) & 0xFF;
-            h *= 0x01000193;
-        }
-        h ^= h >>> 16;
-        h *= 0x85EBCA6B;
-        h ^= h >>> 13;
-        return h;
-    }
-
-    private int hashAt(int off) {
-        int len = data[off] & 0xFF;
-        int h = 0x811C9DC5;
-        for (int i = 0; i < len; i++) {
-            h ^= data[off + 1 + i] & 0xFF;
-            h *= 0x01000193;
-        }
-        h ^= h >>> 16;
-        h *= 0x85EBCA6B;
-        h ^= h >>> 13;
-        return h;
-    }
-
     private void rehash(int newCap) {
         int[] old = table;
         table = new int[newCap];
         int mask = newCap - 1;
         for (int off : old) {
             if (off == 0) continue;
-            int slot = hashAt(off) & mask;
+            int slot = DomainHash.stored(data, off) & mask;
             while (table[slot] != 0) slot = (slot + 1) & mask;
             table[slot] = off;
         }

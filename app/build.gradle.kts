@@ -21,7 +21,7 @@ android {
         minSdk = 23
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
         // Phones (and Apple-silicon emulators) are ARM; x86 builds would only add size.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }

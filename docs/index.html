@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AdWizz — ad blocker for every Android app</title>
+  <meta name="description" content="AdWizz blocks ads, pop-ups, redirects and trackers in every app on your Android phone. No root, nothing leaves your phone. Free download.">
+  <meta name="theme-color" content="#dce5ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121733" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="AdWizz — ad blocker for every Android app">
+  <meta property="og:description" content="Blocks ads, pop-ups and trackers in every app. No root. Nothing leaves your phone.">
+  <meta property="og:image" content="https://chiragkushwaha.github.io/AdWizz/img/icon-192.png">
+  <link rel="icon" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Apply a saved theme before first paint (no flash).
+    try { var t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="sky" aria-hidden="true"><i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i><i class="stars"></i></div>
+
+  <header class="top">
+    <a class="brand" href="#">AdWizz</a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/ChiragKushwaha/AdWizz">GitHub</a>
+    </nav>
+    <button class="celestial" id="theme" aria-label="Switch light / dark mode"></button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-text">
+        <h1>AdWizz</h1>
+        <p class="tag">One spell, and the ads vanish — in every app on your Android phone.</p>
+        <p class="sub">No root. No account. Nothing leaves your phone.</p>
+        <div class="cta">
+          <a class="pixel-btn" id="download" href="https://github.com/ChiragKushwaha/AdWizz/releases/latest/download/AdWizz.apk">Download APK</a>
+          <a class="link" href="https://github.com/ChiragKushwaha/AdWizz/releases">All releases</a>
+        </div>
+        <p class="meta" id="version">Android 6.0+ · about 1.2 MB · free</p>
+      </div>
+      <img class="wizard" src="img/wizard.png" width="448" height="400" alt="AdWizz's pixel wizard flying on a broom">
+    </section>
+
+    <aside class="panel qr-card">
+      <img src="img/qr.png" width="148" height="148" alt="QR code to this page">
+      <div>
+        <h3>On a computer?</h3>
+        <p>Scan this with your phone's camera to open this page there and download AdWizz.</p>
+      </div>
+    </aside>
+
+    <section>
+      <h2>See it in action</h2>
+      <div class="shots" id="shots">
+        <figure><img src="screenshots/home-light.webp" loading="lazy" width="270" height="585" alt="AdWizz home screen in light mode, ads on the monitor" onerror="this.closest('figure').remove()"><figcaption>Ready to cast</figcaption></figure>
+        <figure><img src="screenshots/spell.webp" loading="lazy" width="270" height="585" alt="The wizard casting the spell as the ads float away" onerror="this.closest('figure').remove()"><figcaption>The spell</figcaption></figure>
+        <figure><img src="screenshots/home-dark.webp" loading="lazy" width="270" height="585" alt="AdWizz protecting the phone in dark mode" onerror="this.closest('figure').remove()"><figcaption>Protected, at night</figcaption></figure>
+        <figure><img src="screenshots/settings.webp" loading="lazy" width="270" height="585" alt="Protection settings: trackers, scripts, DNS bypass" onerror="this.closest('figure').remove()"><figcaption>Your rules</figcaption></figure>
+        <figure><img src="screenshots/devices.webp" loading="lazy" width="270" height="585" alt="QR code that sets up ad blocking on other devices" onerror="this.closest('figure').remove()"><figcaption>Share with other devices</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>What it blocks</h2>
+      <div class="grid">
+        <article class="panel"><h3>Ads in every app</h3><p>Games, browsers, news apps — banners, video ads and interstitials stop loading.</p></article>
+        <article class="panel"><h3>Pop-ups &amp; redirects</h3><p>Pop-under tabs and "you won a prize" redirect chains never open.</p></article>
+        <article class="panel"><h3>Trackers &amp; scripts</h3><p>Analytics, tracking pixels, fingerprinting and phone-maker telemetry.</p></article>
+        <article class="panel"><h3>Brand-new ad domains</h3><p>Spots the gibberish domains ad networks register daily, before any list has them.</p></article>
+        <article class="panel"><h3>Hidden trackers</h3><p>Catches trackers disguised as the site's own address (CNAME cloaking).</p></article>
+        <article class="panel"><h3>Malware &amp; crypto-miners</h3><p>Phishing sites and scripts that mine crypto-currency on your phone.</p></article>
+        <article class="panel"><h3>Private by design</h3><p>Filtering happens on your phone. No servers, no account, no logs sent anywhere.</p></article>
+        <article class="panel"><h3>Tiny &amp; light</h3><p>About 1.2 MB. Only DNS goes through it, so speed and battery stay the same.</p></article>
+        <article class="panel"><h3>Updates itself</h3><p>Get notified when a new version is out and update in one tap.</p></article>
+      </div>
+    </section>
+
+    <section id="install">
+      <h2>Install in a minute</h2>
+      <ol class="steps">
+        <li class="panel"><b>1</b><p>Tap <a href="https://github.com/ChiragKushwaha/AdWizz/releases/latest/download/AdWizz.apk">Download APK</a> on your phone.</p></li>
+        <li class="panel"><b>2</b><p>Open the file. If asked, allow your browser to <i>install unknown apps</i> (one time).</p></li>
+        <li class="panel"><b>3</b><p>Open AdWizz and tap <b>Cast spell</b>. Accept Android's VPN prompt — it stays on your phone.</p></li>
+        <li class="panel"><b>4</b><p>Done. Future updates arrive inside the app.</p></li>
+      </ol>
+      <p class="note">Play Protect may say it doesn't recognise the app. That's normal for apps installed outside the Play Store; tap <i>Install anyway</i>.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Questions</h2>
+      <details class="panel"><summary>Why isn't it on the Play Store?</summary><p>Google Play doesn't allow apps that block ads in other apps. That's why ad blockers like this are distributed directly. Every release here is built from the source code on GitHub and signed with the same key, and Android refuses updates signed by anyone else.</p></details>
+      <details class="panel"><summary>Is it really a VPN? Does my traffic go somewhere?</summary><p>It uses Android's VPN feature only to see DNS look-ups (the "phone book" of the internet) on your own device. Ad and tracker names get a "doesn't exist" answer; everything else goes straight to your chosen DNS server. Your browsing never passes through anyone else's server.</p></details>
+      <details class="panel"><summary>Why do some YouTube or Instagram ads still show?</summary><p>Those ads come from the same servers as the videos and posts themselves, so blocking them would break the app. Every DNS-based blocker has this limit.</p></details>
+      <details class="panel"><summary>Ads still show in my browser</summary><p>Check that Android's Private DNS is set to <i>Off</i> or <i>Automatic</i>, and that Chrome's "Use secure DNS" isn't set to a custom provider. AdWizz shows a warning if Private DNS is bypassing it.</p></details>
+      <details class="panel"><summary>Can it protect devices on my hotspot?</summary><p>Android never routes hotspot traffic through a VPN, but AdWizz's Devices tab shows a QR code that sets up ad-blocking DNS on iPhones, Macs and other devices in a few taps.</p></details>
+    </section>
+
+    <section id="privacy" class="panel privacy">
+      <h2>Privacy</h2>
+      <p>AdWizz has no account, no analytics and no servers of its own. The list of blocked and allowed domains is kept only in memory on your phone. It downloads public blocklists and checks this site for updates — that's all it talks to besides the DNS server you choose.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>AdWizz is free · <a href="https://github.com/ChiragKushwaha/AdWizz">Source code</a> · <a href="https://github.com/ChiragKushwaha/AdWizz/issues">Report a problem</a></p>
+    <p class="small">Font: Pixelify Sans (SIL Open Font License). Blocklists by StevenBlack, AdGuard, HaGeZi, EasyPrivacy and others. Not affiliated with Google.</p>
+  </footer>
+  <script src="app.js" defer></script>
+</body>
+</html>
