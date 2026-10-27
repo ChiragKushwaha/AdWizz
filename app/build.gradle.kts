@@ -4,6 +4,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    // Firebase: reads app/google-services.json (project "adwizzzz").
+    id("com.google.gms.google-services")
 }
 
 // Release signing: reads keystore.properties (kept out of git). Without it, release builds fall
@@ -18,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "rocks.chirag.adwizz"
-        minSdk = 23
+        minSdk = 24  // Android 7.0: Firebase Analytics 24+ requires it
         targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
@@ -65,7 +67,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -77,6 +78,8 @@ android {
         // activity-compose / lifecycle are pinned to older (secure, supported) versions on purpose:
         // the newer ones pull in ~35 KB more code with nothing this app uses.
         disable += setOf("GradleDependency", "NewerVersionAvailable")
+        // Suggests fragment-ktx; nothing here uses its Kotlin extensions, so the plain artifact is enough.
+        disable += "KtxExtensionAvailable"
     }
 
     testOptions {
@@ -102,6 +105,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
     implementation("com.google.zxing:core:3.5.4")
 
+    // Firebase (versions come from the BoM).
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+    // Firebase pulls in an old Fragment; registerForActivityResult (VPN consent) needs >= 1.3.
+    implementation("androidx.fragment:fragment:1.8.5")
+    implementation("com.google.firebase:firebase-analytics")
+
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.17")
     testImplementation("androidx.test:core-ktx:1.7.0")
@@ -111,4 +120,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     // Debug builds only: watches for leaked Activities/ViewModels/Services and reports them.
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+}
+
+kotlin {
+    compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
 }

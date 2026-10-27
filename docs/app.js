@@ -25,7 +25,7 @@
     .then(function (u) {
       if (!u) return;
       var mb = u.sizeBytes ? " · " + (u.sizeBytes / 1048576).toFixed(1) + " MB" : "";
-      document.getElementById("version").textContent = "v" + u.versionName + mb + " · Android 6.0+ · free & open source";
+      document.getElementById("version").textContent = "v" + u.versionName + mb + " · Android 7.0+ · free & open source";
       document.getElementById("download").href = u.apkUrl;
     })
     .catch(function () {});

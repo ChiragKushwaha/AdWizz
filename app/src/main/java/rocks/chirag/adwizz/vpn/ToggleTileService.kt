@@ -12,9 +12,6 @@ import rocks.chirag.adwizz.data.VpnState
 import rocks.chirag.adwizz.ui.MainActivity
 
 /** Quick Settings tile to flip protection on/off without opening the app. */
-// Tiles exist from Android 7 (API 24); the manifest only enables this service there
-// (@bool/tile_supported is true only in values-v24).
-@androidx.annotation.RequiresApi(24)
 class ToggleTileService : TileService() {
 
     override fun onStartListening() {

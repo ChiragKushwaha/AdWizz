@@ -3,7 +3,6 @@ package rocks.chirag.adwizz.vpn
 import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
-import android.os.Build
 
 /** Calls [onChange] whenever the real (Wi-Fi / mobile) network or its DNS servers change. */
 internal class NetworkWatcher(
@@ -14,7 +13,7 @@ internal class NetworkWatcher(
         override fun onAvailable(network: Network) = onChange(cm)
         override fun onLinkPropertiesChanged(network: Network, lp: LinkProperties) = onChange(cm)
     }
-    private val registered = Build.VERSION.SDK_INT >= 24 &&
+    private val registered =
         cm?.let { runCatching { it.registerDefaultNetworkCallback(callback) }.isSuccess } == true
 
     override fun close() {

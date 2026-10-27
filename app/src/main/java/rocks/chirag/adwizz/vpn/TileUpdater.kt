@@ -2,7 +2,6 @@ package rocks.chirag.adwizz.vpn
 
 import android.content.ComponentName
 import android.content.Context
-import android.os.Build
 import android.service.quicksettings.TileService
 
 /**
@@ -11,7 +10,6 @@ import android.service.quicksettings.TileService
  */
 object TileUpdater {
     fun request(context: Context) {
-        if (Build.VERSION.SDK_INT < 24) return
         runCatching {
             TileService.requestListeningState(
                 context, ComponentName(context.packageName, "rocks.chirag.adwizz.vpn.ToggleTileService")

@@ -1,6 +1,5 @@
 package rocks.chirag.adwizz.ui
 
-import android.os.Build
 import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -61,10 +60,7 @@ internal fun KeepAliveSection() {
             Text("Always-on VPN", fontWeight = FontWeight.SemiBold)
             Text("Turn on Always-on for AdWizz so protection survives reboots and the system restarts it if it's killed.",
                 style = MaterialTheme.typography.bodySmall)
-            TextButton(onClick = {
-                // The VPN settings screen exists from Android 7; older phones get Network settings.
-                open(context, if (Build.VERSION.SDK_INT >= 24) AndroidSettings.ACTION_VPN_SETTINGS else AndroidSettings.ACTION_WIRELESS_SETTINGS)
-            }) { Text("Open VPN settings") }
+            TextButton(onClick = { open(context, AndroidSettings.ACTION_VPN_SETTINGS) }) { Text("Open VPN settings") }
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Text(
                 if (unrestricted) "Battery: unrestricted ✓" else "Battery: optimised (may be stopped)",

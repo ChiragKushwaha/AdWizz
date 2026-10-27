@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>One spell, and the ads vanish — in every app on your Android phone.</b><br>
-  No root · no account · nothing leaves your phone · 1.2 MB
+  No root · no account · your browsing never leaves your phone · 1.8 MB
 </p>
 
 <p align="center">
@@ -91,9 +91,11 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 
 ## 🔒 Privacy
 
-No account, no analytics, no servers of our own. The list of what was blocked lives only in your
-phone's memory. AdWizz talks to: the DNS server you choose, the public blocklist mirrors, and this
-repo's website (to check for updates). That's the whole list.
+No account, no servers of our own, and your browsing and DNS look-ups never leave your phone: the
+list of what was blocked lives only in your phone's memory. AdWizz talks to the DNS server you choose,
+the public blocklist mirrors, this repo's website (to check for updates), and Google Firebase
+Analytics for anonymous usage statistics (app opens, device model). It never sends the sites or
+apps you use, and the advertising ID is turned off.
 
 ---
 
