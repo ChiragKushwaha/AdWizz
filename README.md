@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>One spell, and the ads vanish — in every app on your Android phone.</b><br>
-  No root · no account · your browsing never leaves your phone · 1.8 MB
+  No root · no account · your browsing never leaves your phone · about 2 MB
 </p>
 
 <p align="center">
@@ -21,6 +21,11 @@
   <img src="docs/screenshots/spell.webp" width="230" alt="The wizard casting the spell">
   &nbsp;
   <img src="docs/screenshots/home-dark.webp" width="230" alt="Protected, at night: the monitor says NO ADS">
+</p>
+<p align="center">
+  <img src="docs/screenshots/settings.webp" width="230" alt="Protection settings: trackers, gibberish domains, malicious scripts">
+  &nbsp;
+  <img src="docs/screenshots/devices.webp" width="230" alt="Devices tab: a QR code that sets up ad blocking on other devices">
 </p>
 
 ---
@@ -93,9 +98,9 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 
 No account, no servers of our own, and your browsing and DNS look-ups never leave your phone: the
 list of what was blocked lives only in your phone's memory. AdWizz talks to the DNS server you choose,
-the public blocklist mirrors, this repo's website (to check for updates), and Google Firebase
-Analytics for anonymous usage statistics (app opens, device model). It never sends the sites or
-apps you use, and the advertising ID is turned off.
+the public blocklist mirrors, this repo's website (to check for updates), and Google Firebase for
+anonymous usage statistics, crash reports and performance data (app opens, start-up time, device
+model). It never sends the sites or apps you use, and the advertising ID is turned off.
 
 ---
 

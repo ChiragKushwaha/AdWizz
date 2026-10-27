@@ -6,6 +6,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     // Firebase: reads app/google-services.json (project "adwizzzz").
     id("com.google.gms.google-services")
+    // Crash reports with readable stack traces (uploads R8 mapping files for release builds).
+    id("com.google.firebase.crashlytics")
+    // Performance Monitoring: app start, screen rendering, network requests, custom traces.
+    id("com.google.firebase.firebase-perf")
 }
 
 // Release signing: reads keystore.properties (kept out of git). Without it, release builds fall
@@ -110,6 +114,8 @@ dependencies {
     // Firebase pulls in an old Fragment; registerForActivityResult (VPN consent) needs >= 1.3.
     implementation("androidx.fragment:fragment:1.8.5")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-perf")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.17")

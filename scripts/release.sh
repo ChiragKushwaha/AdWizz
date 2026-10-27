@@ -2,7 +2,9 @@
 # Publishes a new AdWizz version to GitHub Releases and tells every installed app about it.
 #
 #   1. Bump versionCode (+1) and versionName in app/build.gradle.kts
-#   2. scripts/release.sh "What's new in one or two sentences"
+#   2. scripts/release.sh "What's new in one or two sentences" [release-notes.md]
+#      The sentence is shown in the app's update panel/notification; the optional Markdown file
+#      becomes the full GitHub release notes.
 #
 # It runs the tests, builds the signed APK (needs keystore.properties), writes docs/update.json
 # (the manifest the app checks daily), commits + tags, pushes, and creates the GitHub release
@@ -14,6 +16,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 NOTES="${1:-}"
+NOTES_FILE="${2:-}"
+[[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "notes file not found: $NOTES_FILE"; exit 2; }
 [[ -n "$NOTES" ]] || { echo "usage: scripts/release.sh \"release notes\""; exit 2; }
 command -v gh >/dev/null || { echo "Install the GitHub CLI first: brew install gh && gh auth login"; exit 2; }
 gh auth status >/dev/null 2>&1 || { echo "Run: gh auth login"; exit 2; }
@@ -53,6 +57,9 @@ git add docs/update.json
 git commit -m "Release $TAG"
 git tag -a "$TAG" -m "AdWizz $TAG"
 git push origin HEAD "$TAG"
-printf '%s\n\nSHA-256: `%s`\n' "$NOTES" "$SHA" > build/release/notes.md
+{
+  if [[ -n "$NOTES_FILE" ]]; then cat "$NOTES_FILE"; else printf '%s\n' "$NOTES"; fi
+  printf '\n---\n**Download:** `AdWizz.apk` below (%s KB) · Android 7.0+\n\n**SHA-256:** `%s`\n' "$((SIZE / 1024))" "$SHA"
+} > build/release/notes.md
 gh release create "$TAG" "$APK" --repo "$REPO" --title "AdWizz $TAG" --notes-file build/release/notes.md --latest
 echo "Published $TAG ($SIZE bytes). Apps will see it once GitHub Pages refreshes docs/update.json."

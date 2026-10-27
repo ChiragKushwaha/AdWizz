@@ -1,0 +1,9 @@
+{
+  "name": "AdWizz — ad blocker for Android",
+  "short_name": "AdWizz",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#dce5ee",
+  "theme_color": "#5e1a1d",
+  "icons": [{ "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+}

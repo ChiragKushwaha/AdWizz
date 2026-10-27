@@ -64,9 +64,11 @@ object Updater {
         val apk = prepare(context, info) ?: return
         try {
             _state.value = UpdateState.Installing(info)
+            Telemetry.event(context, "update_install", "to_version" to info.versionName)
             ApkInstaller.install(context.applicationContext, apk)
         } catch (e: Exception) {
             Log.w(TAG, "Update install failed", e)
+            Telemetry.nonFatal(e)
             _state.value = UpdateState.Failed(info, e.message ?: "Install failed")
         }
     }

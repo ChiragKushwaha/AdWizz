@@ -12,6 +12,7 @@ import rocks.chirag.adwizz.core.DomainMatcher
 import rocks.chirag.adwizz.data.BlocklistRepository
 import rocks.chirag.adwizz.data.Settings
 import rocks.chirag.adwizz.data.Status
+import rocks.chirag.adwizz.data.Telemetry
 import rocks.chirag.adwizz.data.VpnState
 
 /** On-device VPN that only carries DNS ([configureForDns]); blocking in [PacketPump], forwarding in [UpstreamDns]. */
@@ -55,12 +56,12 @@ class AdBlockVpnService : VpnService() {
         VpnNotification.showForeground(this, ACTION_STOP)
         Thread {
             try {
-                reloadConfig()
-                establish()
+                Telemetry.trace("vpn_start") { reloadConfig(); establish() }
+                Telemetry.event(this, "protection_on", "list_size" to matcher.size())
                 network = NetworkWatcher(getSystemService(ConnectivityManager::class.java)) { upstream.refreshNetworkDns(it) }
                 maintenance = Maintenance(applicationContext, repo, ::reloadConfig).also { it.start() }
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to start", e)
+                Log.e(TAG, "Failed to start", e); Telemetry.nonFatal(e)
                 VpnState.setStatus(Status.ERROR, e.message ?: "Failed to start VPN")
                 shutdown()
             } finally {
@@ -93,6 +94,7 @@ class AdBlockVpnService : VpnService() {
         maintenance?.close(); maintenance = null
         runCatching { tun?.close() }; tun = null
         if (!stopService) return
+        Telemetry.event(this, "protection_off", "blocked" to VpnState.stats.value.blocked)
         if (VpnState.status.value != Status.ERROR) VpnState.setStatus(Status.STOPPED)
         VpnNotification.remove(this)
         stopSelf()

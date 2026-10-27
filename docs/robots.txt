@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chiragkushwaha.github.io/AdWizz/sitemap.xml

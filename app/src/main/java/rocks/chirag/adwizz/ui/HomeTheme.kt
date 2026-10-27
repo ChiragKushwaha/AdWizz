@@ -54,6 +54,7 @@ internal fun ThemeQuickToggle() {
 /** Saves and applies a theme. Called by [ThemeRevealHost] once it has snapshotted the old theme. */
 fun applyTheme(context: Context, mode: ThemeMode) {
     Settings(context).themeMode = mode.key
+    Telemetry.event(context, "theme_changed", "mode" to mode.key)
     ThemeState.mode.value = mode
 }
 

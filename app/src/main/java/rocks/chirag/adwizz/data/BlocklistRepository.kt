@@ -32,7 +32,9 @@ class BlocklistRepository(context: Context) {
             System.currentTimeMillis() - settings.lastListUpdate > STALE_MS
 
     /** Builds a matcher from everything available on disk. Safe to call from any background thread. */
-    fun buildMatcher(): DomainMatcher {
+    fun buildMatcher(): DomainMatcher = Telemetry.trace("blocklist_load") { loadMatcher() }
+
+    private fun loadMatcher(): DomainMatcher {
         // Sized for ~1M domains up front so big lists load without rehashing.
         val blocked = DomainSet(1_000_000)
         context.assets.open("starter_blocklist.txt").bufferedReader().use { ListParser.parseInto(it, blocked) }
@@ -48,7 +50,10 @@ class BlocklistRepository(context: Context) {
         val allowed = DomainSet().apply { ListParser.normalise(settings.allowlist).forEach { add(it) } }
         return DomainMatcher(blocked.trim(), allowed)
             .withGeneratedDomainBlocking(settings.blockGenerated)
-            .also { VpnState.setListSize(it.size()) }
+            .also {
+                VpnState.setListSize(it.size())
+                Telemetry.crashContext("list_size", it.size().toString())
+            }
     }
 
     /** Downloads every enabled source. Returns a short human-readable result. Blocking — call off main thread. */
@@ -67,6 +72,7 @@ class BlocklistRepository(context: Context) {
                 }
             }
             if (ok > 0) settings.lastListUpdate = System.currentTimeMillis()
+            Telemetry.event(context, "lists_updated", "ok" to ok, "failed" to failed.size)
             return if (failed.isEmpty()) "Updated $ok list(s)" else "Updated $ok, failed: ${failed.joinToString()}"
         } finally {
             VpnState.setUpdating(false)

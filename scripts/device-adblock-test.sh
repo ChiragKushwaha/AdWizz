@@ -25,7 +25,7 @@ green() { printf '\033[32m%s\033[0m\n' "$*"; }
 
 "$ADB" get-state >/dev/null || { red "No device connected"; exit 2; }
 "$ADB" shell ip -o addr show tun0 >/dev/null 2>&1 || { red "AdWizz VPN isn't running (no tun0). Turn it on first."; exit 2; }
-"$ADB" shell dumpsys package "$PKG" | grep -q "DEBUGGABLE" || { red "Install a debug build (it logs DNS decisions)."; exit 2; }
+"$ADB" shell dumpsys package "$PKG" | grep "DEBUGGABLE" >/dev/null || { red "Install a debug build (it logs DNS decisions)."; exit 2; }
 
 tabs_count() {
   "$ADB" shell "uiautomator dump /sdcard/adwizz-ui.xml >/dev/null 2>&1; cat /sdcard/adwizz-ui.xml" \
