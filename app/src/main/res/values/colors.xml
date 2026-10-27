@@ -1,0 +1,6 @@
+<resources>
+    <!-- Sky blue from the AdWizz design. -->
+    <color name="ic_launcher_background">#DCE5EE</color>
+    <color name="window_light">#DCE5EE</color>
+    <color name="window_dark">#121733</color>
+</resources>
