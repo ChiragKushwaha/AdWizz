@@ -31,7 +31,7 @@ dm() { "$ADB" shell am broadcast -a com.android.systemui.demo -e command "$@" >/
 dm enter; dm clock -e hhmm 0930; dm battery -e level 100 -e plugged false; dm network -e wifi show -e level 4; dm notifications -e visible false
 trap 'dm exit' EXIT
 
-"$ADB" shell am start -n rocks.chirag.adshield/.ui.MainActivity >/dev/null; sleep 3
+"$ADB" shell am start -n rocks.chirag.adwizz/.ui.MainActivity >/dev/null; sleep 3
 tap 'text="Settings"'; sleep 1
 # Start unprotected so the spell can be captured.
 ui | grep -q 'Turn protection off' && { tap 'content-desc="Turn protection off"'; sleep 3; }

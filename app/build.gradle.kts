@@ -13,11 +13,11 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "rocks.chirag.adshield"
+    namespace = "rocks.chirag.adwizz"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "rocks.chirag.adshield"
+        applicationId = "rocks.chirag.adwizz"
         minSdk = 23
         targetSdk = 37
         versionCode = 1

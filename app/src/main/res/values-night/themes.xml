@@ -1,6 +1,6 @@
 <resources>
     <!-- Night-sky window background so there's no flash while the app starts in dark mode. -->
-    <style name="Theme.AdShield" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.AdWizz" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/window_dark</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

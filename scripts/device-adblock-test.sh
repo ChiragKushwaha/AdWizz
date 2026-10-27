@@ -11,7 +11,7 @@
 set -euo pipefail
 
 ADB="${ADB:-$(command -v adb || echo "$HOME/Library/Android/sdk/platform-tools/adb")}"
-PKG=rocks.chirag.adshield
+PKG=rocks.chirag.adwizz
 PAGES=("https://canyoublockit.com/" "https://canyoublockit.com/extreme-test/")
 # Hosts that must be blocked (kept in sync with CanYouBlockIt.AD_HOSTS in the unit tests).
 AD_HOSTS=(12ezo5v60.com fvcwqkkqmuv.com ybs2ffs7v.com kjfhenoqfyfljo.com d3cod80thn7qnd.cloudfront.net

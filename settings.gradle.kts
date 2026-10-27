@@ -16,5 +16,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AdShield"
+rootProject.name = "AdWizz"
 include(":app")

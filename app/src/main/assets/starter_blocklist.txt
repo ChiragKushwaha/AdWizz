@@ -1,4 +1,4 @@
-# AdShield starter list — works offline on first launch.
+# AdWizz starter list — works offline on first launch.
 # The full lists (StevenBlack, AdGuard DNS, ...) are downloaded automatically and replace/extend this.
 
 # Google ads & analytics

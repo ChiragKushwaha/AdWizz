@@ -1,4 +1,4 @@
-# AdShield starter tracker list — used when "Block trackers & analytics scripts" is on.
+# AdWizz starter tracker list — used when "Block trackers & analytics scripts" is on.
 
 # Trackers & telemetry
 scorecardresearch.com
