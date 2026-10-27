@@ -1,125 +1,152 @@
-# AdWizz — system-wide ad blocker for Android (local VPN)
+<p align="center">
+  <img src="docs/img/wizard-cast.png" width="260" alt="AdWizz's pixel wizard casting a spell on his broom">
+</p>
 
-**Download:** https://chiragkushwaha.github.io/AdWizz/ · [latest APK](https://github.com/ChiragKushwaha/AdWizz/releases/latest/download/AdWizz.apk)
+<h1 align="center">AdWizz</h1>
 
-Blocks ads and trackers in **every app** on the phone, without root, by running a local
-`VpnService` that filters DNS on-device. No traffic leaves the phone through a remote server.
+<p align="center">
+  <b>One spell, and the ads vanish — in every app on your Android phone.</b><br>
+  No root · no account · nothing leaves your phone · 1.2 MB
+</p>
 
-## How it works
+<p align="center">
+  <a href="https://github.com/ChiragKushwaha/AdWizz/releases/latest/download/AdWizz.apk"><b>⬇ Download the APK</b></a> ·
+  <a href="https://chiragkushwaha.github.io/AdWizz/">Website</a> ·
+  <a href="https://github.com/ChiragKushwaha/AdWizz/releases">All releases</a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/home-light.webp" width="230" alt="Home screen: a monitor full of ads, wizard ready to cast">
+  &nbsp;
+  <img src="docs/screenshots/spell.webp" width="230" alt="The wizard casting the spell">
+  &nbsp;
+  <img src="docs/screenshots/home-dark.webp" width="230" alt="Protected, at night: the monitor says NO ADS">
+</p>
+
+---
+
+## 🧙 What is this sorcery?
+
+Ads are everywhere: in games, in news apps, in every browser tab trying to open a "you won!" pop-up.
+AdWizz is a tiny wizard who lives on your phone and makes them disappear.
+
+Tap **Cast spell**, the wizard raises his wand, and the ads on his little monitor levitate, float off
+into the sky and vanish in a puff of cloud. From then on, ads in *every* app on your phone simply
+never arrive. 🪄
+
+## 📜 The spellbook (what it blocks)
+
+| Spell | What it does |
+|---|---|
+| 🚫 **Ad banishing** | Banners, video ads and interstitials in every app and browser |
+| 🌀 **Anti-pop-up ward** | Pop-under tabs and redirect chains never open |
+| 🕵️ **Tracker blindness** | Analytics, tracking pixels, fingerprinting scripts, phone-maker telemetry |
+| 🔮 **Gibberish detector** | Spots brand-new ad domains like `pgjlctmswgnwf.com` before any list knows them |
+| 🎭 **Unmasking** | Catches trackers disguised as the site's own address (CNAME cloaking) |
+| 🛡️ **Anti-dark-magic** | Phishing sites and crypto-mining scripts |
+| 🧱 **Bypass barrier** | Apps that sneak around your DNS (hard-coded Google/Cloudflare, DNS-over-HTTPS) get caught |
+| 🙈 **Invisibility cloak** | Exclude banking/streaming apps that refuse to run with a VPN |
+| 📡 **Share the magic** | A QR code sets up ad blocking on iPhones, Macs and laptops on your hotspot |
+| ✨ **Self-renewing** | Tells you when a new version is out and updates in one tap |
+
+Tested against [canyoublockit.com](https://canyoublockit.com/extreme-test/): every live ad
+network on its "eXtreme" test page is blocked, and no pop-under opens.
+
+## 📲 Install
+
+1. On your phone, open **[the latest APK](https://github.com/ChiragKushwaha/AdWizz/releases/latest/download/AdWizz.apk)**.
+2. If asked, allow your browser to *install unknown apps* (one time).
+3. Open AdWizz, tap **Cast spell**, accept Android's VPN prompt.
+4. That's it. Updates arrive inside the app.
+
+> **Play Protect may say it doesn't recognise the app.** That's normal for apps installed outside the
+> Play Store; tap *Install anyway*. Google Play doesn't allow apps that block other apps' ads, which
+> is why AdWizz lives here.
+
+**Settings that matter:** Private DNS must be *Off* or *Automatic* (AdWizz warns you if not), and
+Chrome's "Use secure DNS" shouldn't be set to a custom provider. Turn on **Always-on VPN** for
+AdWizz so protection survives reboots.
+
+## 🔍 How the magic actually works
+
+No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so everything else
+(your browsing, video, downloads) goes straight over your normal connection at full speed.
 
 ```
- any app ──DNS query──► 10.111.222.1 (fake DNS, routed into the TUN)
-                              │
-                     AdBlockVpnService reads packet
-                              │
-             ┌── domain on blocklist? ──┐
-            yes                          no
-             │                            │
-   answer 0.0.0.0 / ::            forward via protected socket
-   instantly (ad never loads)     to 1.1.1.1 (or your choice) → reply
+ any app ──"where is ads.example.com?"──► AdWizz (on your phone)
+                                              │
+                        ┌──── on a blocklist? ────┐
+                       yes                        no
+                        │                          │
+          "it doesn't exist" (0.0.0.0)     ask your DNS server (Cloudflare,
+          → the ad never loads             AdGuard, …) → normal answer
 ```
 
-- Only the fake DNS address (plus well-known public resolvers, if "Block DNS bypass" is on) is
-  routed into the tunnel. All other traffic goes over the normal network at full speed and
-  battery cost stays near zero.
-- **Block DNS bypass**: apps that hard-code 8.8.8.8 / 1.1.1.1 / Quad9 / etc. are also caught.
-  Plain DNS to them is filtered; DNS-over-TLS/HTTPS to them gets an instant ICMP "prohibited",
-  so the app falls back to plain DNS.
-- Blocklists: a bundled starter list (works offline), plus StevenBlack Unified, AdGuard DNS,
-  HaGeZi Pro and HaGeZi Pop-Up Ads (redirect / pop-under networks). Missing lists download on
-  start and all lists refresh every 2 days while the VPN runs.
-- **CNAME cloaking**: if an allowed-looking domain is just an alias for a blocked ad domain, it's
-  blocked too.
-- **Browser DoH bypass**: Firefox's DoH canary gets NXDOMAIN, and well-known DoH/DoT endpoints
-  (Google, Cloudflare, Quad9, NextDNS, Control D, Mullvad, …) are refused so browsers fall back.
-- **Block trackers & analytics scripts** (EasyPrivacy, hidden first-party trackers, phone-maker
-  telemetry) and **Block malicious & crypto-mining scripts** (Phishing Army, NoCoin) — both on by default.
-- **Excluded apps**: picked apps skip the VPN entirely, for apps that refuse to run when a VPN is on.
-- Light / Dark / System theme.
-- Allowlist always wins over blocklists. Tap any entry in the Activity tab to allow/block it.
-- Quick Settings tile, foreground notification with "Turn off", Always-on VPN support.
+- **Lists:** a built-in starter list (works offline) plus StevenBlack, AdGuard DNS, HaGeZi Pro,
+  EasyPrivacy, phone-maker telemetry lists, Phishing Army and NoCoin — about 790,000 domains,
+  refreshed every 2 days, stored in a compact table (about 25 bytes per domain) so it stays light.
+- **Honest limits:** ads served from the *same* servers as the content (YouTube, Instagram feed ads)
+  can't be separated by DNS — no DNS blocker can. Devices on your hotspot don't pass through an
+  Android VPN, which is what the Devices tab's QR code is for.
 
-## Look & feel
+## 🔒 Privacy
 
-Pixel-art design (`design/image.png`): sky, drifting clouds, castle and pine forest, chunky maroon
-buttons with hard shadows, Pixelify Sans font (OFL, subset to Latin). Light = daytime sky,
-dark = night sky with moon and stars. Tapping **Cast spell** makes the wizard cast
-"Wingardium Leviosa!" and the ads on the monitor float off into the sky.
+No account, no analytics, no servers of our own. The list of what was blocked lives only in your
+phone's memory. AdWizz talks to: the DNS server you choose, the public blocklist mirrors, and this
+repo's website (to check for updates). That's the whole list.
 
-- `scripts/make_wizard.py` generates the wizard sprites, launcher icon (adaptive + PNG) and
-  notification icon from one definition.
-- `scripts/extract_design_assets.py` lifts the bat and heart sprites from the design image.
-  The design's boy wizard / owl / golden ball are Harry Potter IP and are not used.
-- The spell text is a Harry Potter phrase; swap `SPELL` in `ui/WizardStage.kt` for an original one
-  before a Play Store release.
+---
 
-## Testing
+## 🛠️ For developers
 
-- `./gradlew testDebugUnitTest` — 201 JVM + Robolectric tests (core, data, share server, every UI tab,
-  theme reveal, wizard stage, canyoublockit.com regression).
-- `./gradlew testDebugUnitTest -Plive=true` — also checks the live canyoublockit.com pages against the
-  live blocklists.
-- `scripts/device-adblock-test.sh` — on a connected phone with a debug build running: opens the test
-  site in Chrome and verifies every ad host was blocked and no pop-under opened.
+### Build
 
-## Releasing (GitHub Releases + in-app updates)
+Open the folder in Android Studio and press **Run**, or:
 
-AdWizz isn't on Google Play (Play doesn't allow apps that block other apps' ads), so it updates
-itself from GitHub:
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+./gradlew assembleDebug         # app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleRelease       # signed with your key if keystore.properties exists
+```
+
+### Test
+
+- `./gradlew testDebugUnitTest` — 201 JVM + Robolectric tests: packet/DNS parsing (with fuzzing),
+  blocklists, the update manifest, the share server, every UI screen, the theme reveal and the spell.
+- `./gradlew testDebugUnitTest -Plive=true` — also checks canyoublockit.com against the live lists.
+- `scripts/device-adblock-test.sh` — on a connected phone with a debug build: opens the test site in
+  Chrome and checks every ad host was blocked and no pop-under opened.
+
+### Release (GitHub Releases + in-app updates)
 
 1. Bump `versionCode` (+1) and `versionName` in `app/build.gradle.kts`, commit.
 2. `scripts/release.sh "What's new"` — tests, builds the signed APK, writes `docs/update.json`,
    tags, pushes and creates the GitHub release with `AdWizz.apk`.
-3. GitHub Pages serves the new `update.json`; installed apps check it daily (from the VPN's
-   background job too), download + verify the APK (SHA-256 and signing key), and notify
-   "AdWizz vX is ready". One tap installs it; on Android 12+ every update after the first installs
-   without Android's extra confirm screen.
+3. Installed apps check `update.json` daily (also from the VPN's background job), download and verify
+   the APK (SHA-256 and signing key) and notify *"AdWizz vX is ready"*. One tap installs; on Android 12+
+   every update after the first installs without Android's extra confirm screen.
 
-Website: `docs/` (GitHub Pages → Deploy from branch → `main` / `docs`). Screenshots:
-`scripts/capture-screenshots.sh` with a phone connected.
+Needs the GitHub CLI (`brew install gh && gh auth login`) and `keystore.properties` (gitignored) for the
+release key. **Back up the key and that file** — without them you can't ship updates.
 
-Release signing needs `keystore.properties` (gitignored) pointing at the upload key — back up
-both the key and that file; without them you can't ship updates.
+Website: `docs/` on GitHub Pages. Fresh screenshots: `scripts/capture-screenshots.sh` with a phone connected.
 
-## Build & install
+### Code map
 
-1. Open the project folder in Android Studio (Ladybug or newer). Let Gradle sync.
-2. Plug in a phone with USB debugging, press **Run**.
-   Or from a terminal: `./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`.
-3. Open the app, tap the shield, accept the VPN prompt.
+| Path | What lives there |
+|---|---|
+| `core/` | Plain Java, no Android: `IpPacket`/`IpBuilder`/`Bytes` (packets), `DnsMessage`/`DnsResponse` (DNS), `DomainSet` + `DomainHash` (compact domain table), `DomainMatcher`, `ListParser`, `GeneratedDomain` |
+| `vpn/` | `AdBlockVpnService` (lifecycle), `TunnelSetup` + `ResolverLists`, `PacketPump` (read → filter → answer), `UpstreamDns`, `NetworkWatcher`, `Maintenance`, notification, Quick Settings tile |
+| `data/` | `Settings`, `Sources`, `BlocklistRepository` + downloader, `VpnState`, updater (`Updater`, `UpdateNotifier`, `ApkInstaller`, …) |
+| `share/` | The Devices tab's local setup page: `ShareServer`, `HttpIo`, `SetupPage`, `MobileConfig`, `LanAddress` |
+| `ui/` | Compose UI: home (`WizardStage` + `Stage*`), tabs, settings sections, pixel kit, theme + radial reveal |
+| `scripts/` | `make_wizard.py` (wizard art + icons), `extract_design_assets.py`, release, screenshots, device test |
+| `docs/` | The website |
 
-`assembleRelease` also works out of the box (signed with the debug key — set your own
-`signingConfig` before publishing).
+Every source file is kept under ~120 lines.
 
-## Phone settings that matter
+## 📄 License
 
-- **Private DNS** (Settings → Network & internet → Private DNS) must be **Off** or **Automatic**.
-  A specific hostname makes Android bypass any VPN's DNS.
-- **Always-on VPN** (Settings → Network & internet → VPN → ⚙ AdShield) keeps protection across
-  reboots. Enable "Block connections without VPN" only if you want zero leaks.
-- Android allows one VPN at a time — AdShield can't run alongside another VPN app.
-
-## Limits (true of every DNS-level blocker)
-
-- Ads served from the same domain as content can't be separated by DNS — notably **YouTube**
-  and Instagram/Facebook in-feed ads. Those need in-app or browser-level blocking.
-- **Hotspot clients aren't filtered.** Android's VpnService only covers apps on the phone itself;
-  tethered devices' traffic is forwarded by the system and never enters the VPN. Give those
-  devices an ad-blocking DNS directly (e.g. Private DNS `dns.adguard-dns.com`).
-- Apps can always tell a VPN is running (Android reports it to them). Use Excluded apps instead.
-- Chrome's "Use secure DNS" with a custom provider bypasses system DNS; leave it on the
-  default ("With your current service provider").
-
-## Code map
-
-| Path | What it does |
-| --- | --- |
-| `core/IpPacket.java` | IPv4/UDP parse & build, checksums, ICMP unreachable |
-| `core/DnsMessage.java` | Parse query name/type, synthesise blocked & SERVFAIL replies |
-| `core/DomainMatcher.java` | Hosts/domain/Adblock list parsing; parent-domain matching; allowlist |
-| `vpn/AdBlockVpnService.kt` | The VPN: TUN setup, read loop, filtering, upstream forwarding |
-| `vpn/ToggleTileService.kt` | Quick Settings tile |
-| `data/` | Settings, blocklist download/loading, observable state |
-| `ui/` | Jetpack Compose UI |
-
-The `core` package is plain Java with no Android dependencies; `./gradlew test` runs its unit tests.
+[MIT](LICENSE) © 2026 Chirag Kushwaha.
+Font: [Pixelify Sans](licenses/PixelifySans-OFL.txt) (SIL Open Font License). Blocklists belong to
+their authors (StevenBlack, AdGuard, HaGeZi, EasyPrivacy/firebog, Frogeye, Phishing Army, NoCoin).
