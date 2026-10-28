@@ -29,6 +29,25 @@ class ListParserTest {
         ).forEach { assertNull("should reject: '$it'", ListParser.parseLine(it)) }
     }
 
+    @Test fun cosmeticAndSiteSpecificRulesAreNotDomains() {
+        listOf(
+            "m.youtube.com##a[onclick*='aclk']",                 // hides an element on a page
+            "m.youtube.com#@#a[onclick]",                        // un-hides one
+            "example.com#\$#body { overflow: auto; }",          // CSS injection
+            "example.com#?#div:has(> .ad)",                      // extended CSS
+            "||cdn.example.com^\$domain=news.example.org",      // only on one site
+            "||ads.example.com^\$badfilter",                    // turns a rule off
+            "@@||allowed.example.com^",                          // exception, not a block
+        ).forEach { assertNull("should skip: '$it'", ListParser.parseLine(it)) }
+    }
+
+    @Test fun keepsPlainBlockRulesWithHarmlessOptions() {
+        assertEquals("ads.example.com", ListParser.parseLine("||ads.example.com^\$third-party"))
+        assertEquals("ads.example.com", ListParser.parseLine("||ads.example.com^\$important"))
+        assertEquals("ads.example.com", ListParser.parseLine("ads.example.com # comment"))
+        assertEquals("ads.example.com", ListParser.parseLine("0.0.0.0 ads.example.com\t# comment"))
+    }
+
     @Test fun parseLineRejectsTooLongDomain() {
         val d = "a".repeat(250) + ".com"
         assertNull(ListParser.parseLine(d))

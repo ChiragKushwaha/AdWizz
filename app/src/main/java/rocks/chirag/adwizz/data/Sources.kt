@@ -39,6 +39,21 @@ object Sources {
             "hagezi_pro", "HaGeZi Pro", hagezi("pro.txt"),
             "Broad ads, trackers, pop-ups and redirect ad networks"
         ),
+        // Off by default: also blocks some app back-ends, e.g. graph.instagram.com (Instagram log-ins and sharing).
+        BlocklistSource(
+            "hagezi_proplus", "HaGeZi Pro++", hagezi("pro.plus.txt"),
+            "Stricter Pro: catches more trackers, but may break some app features"
+        ),
+        BlocklistSource(
+            "oisd_big", "OISD Big",
+            listOf("https://big.oisd.nl/domainswild2"),
+            "Ads and trackers merged from dozens of lists, tuned not to break apps"
+        ),
+        BlocklistSource(
+            "adguard_mobile", "AdGuard Mobile Ads",
+            listOf("https://filters.adtidy.org/extension/ublock/filters/11.txt"),
+            "Ad networks built into Android apps and games"
+        ),
 
         // "Block trackers & analytics scripts"
         BlocklistSource(
@@ -50,6 +65,11 @@ object Sources {
             "frogeye_firstparty", "Hidden first-party trackers",
             listOf("https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt"),
             "Trackers disguised as the site's own subdomain", SourceGroup.TRACKERS
+        ),
+        BlocklistSource(
+            "frogeye_multiparty", "Third-party trackers",
+            listOf("https://hostfiles.frogeye.fr/multiparty-trackers-hosts.txt"),
+            "Cross-site trackers and tracking-link redirects", SourceGroup.TRACKERS
         ),
         native("samsung", "Samsung"),
         native("xiaomi", "Xiaomi"),
@@ -79,10 +99,10 @@ object Sources {
         ),
     )
     val ADS = ALL.filter { it.group == SourceGroup.ADS }
-    val DEFAULT_ENABLED = setOf("stevenblack", "adguard_dns", "hagezi_pro")
+    val DEFAULT_ENABLED = setOf("stevenblack", "adguard_dns", "hagezi_pro", "oisd_big", "adguard_mobile")
 
     /** Bump when DEFAULT_ENABLED gains sources, so existing installs get them turned on too. */
-    const val REVISION = 3
+    const val REVISION = 4
     /** Sources that no longer exist upstream. */
     val REMOVED = setOf("hagezi_popup")
 }

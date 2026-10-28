@@ -91,8 +91,12 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 ```
 
 - **Lists:** a built-in starter list (works offline) plus StevenBlack, AdGuard DNS, HaGeZi Pro,
-  EasyPrivacy, phone-maker telemetry lists, Phishing Army and NoCoin — about 790,000 domains,
-  refreshed every 2 days, stored in a compact table (about 25 bytes per domain) so it stays light.
+  OISD Big, AdGuard Mobile Ads (ad SDKs inside apps), EasyPrivacy, Frogeye first- and third-party
+  trackers, phone-maker telemetry lists, Phishing Army and NoCoin — about 860,000 domains. HaGeZi
+  Pro++ is an optional stricter switch. Lists refresh every 12 hours on Wi-Fi (every 2 days on mobile
+  data, and unchanged lists aren't downloaded again), and live in a compact in-memory table (about
+  25 bytes per domain) so it stays light. A live test checks that the default lists never block
+  hosts popular apps need (YouTube's video servers, Instagram, WhatsApp, UPI apps…).
 - **Reels & Shorts:** these come from the same servers as the rest of Instagram and YouTube, so DNS
   can't block them. The optional *Block Reels & Shorts* switch uses an Accessibility service instead:
   it checks which screen those apps are showing and presses Back when it's a short-video player.
@@ -171,4 +175,4 @@ Every source file is kept under ~120 lines.
 
 [MIT](LICENSE) © 2026 Chirag Kushwaha.
 Font: [Pixelify Sans](licenses/PixelifySans-OFL.txt) (SIL Open Font License). Blocklists belong to
-their authors (StevenBlack, AdGuard, HaGeZi, EasyPrivacy/firebog, Frogeye, Phishing Army, NoCoin).
+their authors (StevenBlack, AdGuard, HaGeZi, OISD, EasyPrivacy/firebog, Frogeye, Phishing Army, NoCoin).

@@ -38,10 +38,28 @@ class BlocklistFreshnessTest {
         assertTrue(repo.needsDownload())
     }
 
+    @Test fun refreshesEvery12HoursOnWifiButEvery2DaysOnMobileData() {
+        repo.activeSources().forEach { writeList(it.id, "0.0.0.0 x.test\n") }
+        val hour = 3600 * 1000L
+        settings.lastListUpdate = System.currentTimeMillis() - 11 * hour
+        assertFalse(repo.needsDownload(metered = false))
+        settings.lastListUpdate = System.currentTimeMillis() - 13 * hour
+        assertTrue(repo.needsDownload(metered = false))
+        assertFalse(repo.needsDownload(metered = true))
+        settings.lastListUpdate = System.currentTimeMillis() - 49 * hour
+        assertTrue(repo.needsDownload(metered = true))
+    }
+
+    @Test fun missingListsDownloadEvenOnMobileData() {
+        settings.lastListUpdate = System.currentTimeMillis()
+        assertTrue(repo.needsDownload(metered = true))
+    }
+
     @Test fun noDownloadWhenFreshAndComplete() {
         repo.activeSources().forEach { writeList(it.id, "0.0.0.0 x.test\n") }
         settings.lastListUpdate = System.currentTimeMillis()
-        assertFalse(repo.needsDownload())
+        assertFalse(repo.needsDownload(metered = false))
+        assertFalse(repo.needsDownload(metered = true))
     }
 
     @Test fun emptyListFileCountsAsMissing() {

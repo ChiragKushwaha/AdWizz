@@ -37,12 +37,23 @@ public final class ListParser {
     static String parseLine(String raw) {
         String line = raw.trim();
         if (line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '!') return null;
+        // Exceptions ("@@||x^") aren't blocks. Allowlisting is the user's call, not the list's.
+        if (line.startsWith("@@")) return null;
         int hash = line.indexOf('#');
-        if (hash >= 0) line = line.substring(0, hash).trim();
+        if (hash >= 0) {
+            // "example.com##.ad" / "#@#" / "#$#": a cosmetic rule that hides part of a page, not a
+            // domain to block. A real comment always has whitespace before the '#'.
+            if (!Character.isWhitespace(line.charAt(hash - 1))) return null;
+            line = line.substring(0, hash).trim();
+        }
 
         if (line.startsWith("||")) {
             int end = line.indexOf('^');
             if (end < 0) end = line.length();
+            // "$domain=..." limits a rule to some websites, which DNS can't see: blocking the domain
+            // everywhere would break other sites. "$badfilter" switches a rule off.
+            String options = line.substring(end);
+            if (options.contains("domain=") || options.contains("badfilter") || options.contains("denyallow")) return null;
             line = line.substring(2, end);
             if (line.startsWith("*.")) line = line.substring(2);
             if (line.contains("/") || line.contains("*") || line.contains("$")) return null;

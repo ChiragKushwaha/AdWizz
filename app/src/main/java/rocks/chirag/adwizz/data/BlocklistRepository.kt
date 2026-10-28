@@ -27,10 +27,18 @@ class BlocklistRepository(context: Context) {
         }
     }
 
-    /** True if an active list was never downloaded, or the lists are older than [STALE_MS]. */
-    fun needsDownload(): Boolean =
+    /**
+     * True if an active list was never downloaded, or the lists are stale: older than 12 hours on
+     * Wi-Fi, or 2 days on mobile data (about 30 MB a refresh, so it goes easy on data plans).
+     */
+    fun needsDownload(metered: Boolean = isMetered()): Boolean =
         activeSources().map { it.id }.any { fileFor(it).let { f -> !f.exists() || f.length() == 0L } } ||
-            System.currentTimeMillis() - settings.lastListUpdate > STALE_MS
+            System.currentTimeMillis() - settings.lastListUpdate > (if (metered) STALE_METERED_MS else STALE_MS)
+
+    /** AdWizz is left out of its own VPN, so this is the real Wi-Fi / mobile network. */
+    private fun isMetered(): Boolean = runCatching {
+        context.getSystemService(android.net.ConnectivityManager::class.java)?.isActiveNetworkMetered
+    }.getOrNull() ?: true
 
     /** Builds a matcher from everything available on disk. Safe to call from any background thread. */
     fun buildMatcher(): DomainMatcher = loadMatcher()
@@ -84,7 +92,8 @@ class BlocklistRepository(context: Context) {
 
     companion object {
         private const val TAG = "Blocklist"
-        /** Ad networks rotate domains constantly, so refresh lists every 2 days. */
-        private const val STALE_MS = 2L * 24 * 60 * 60 * 1000
+        /** Ad networks rotate domains constantly and the lists update daily or more. */
+        internal const val STALE_MS = 12L * 60 * 60 * 1000
+        internal const val STALE_METERED_MS = 2L * 24 * 60 * 60 * 1000
     }
 }
