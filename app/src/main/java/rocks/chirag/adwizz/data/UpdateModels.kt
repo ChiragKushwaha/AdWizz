@@ -13,6 +13,14 @@ data class UpdateInfo(
     val sizeBytes: Long,
 )
 
+/** The latest "AdWizz Reels Blocker" add-on, from the same manifest ("focus"). */
+data class AddonInfo(
+    val versionCode: Int,
+    val apkUrl: String,
+    val sha256: String,
+    val sizeBytes: Long,
+)
+
 sealed interface UpdateState {
     data object Idle : UpdateState
     data class Available(val info: UpdateInfo) : UpdateState
@@ -51,6 +59,21 @@ object UpdateManifest {
             sizeBytes = o.optLong("sizeBytes", 0),
         )
         // Only ever download our own release assets, over HTTPS.
+        require(info.apkUrl.startsWith(RELEASES))
+        require(info.sha256.matches(Regex("[0-9a-f]{64}")))
+        require(info.versionCode > 0 && info.sizeBytes in 0..MAX_APK_BYTES)
+        info
+    }.getOrNull()
+
+    /** The add-on entry ("focus") of the manifest. Null if missing or unsafe. */
+    fun parseAddon(json: String): AddonInfo? = runCatching {
+        val o = JSONObject(json).getJSONObject("focus")
+        val info = AddonInfo(
+            versionCode = o.getInt("versionCode"),
+            apkUrl = o.getString("apkUrl"),
+            sha256 = o.getString("sha256").lowercase(),
+            sizeBytes = o.optLong("sizeBytes", 0),
+        )
         require(info.apkUrl.startsWith(RELEASES))
         require(info.sha256.matches(Regex("[0-9a-f]{64}")))
         require(info.versionCode > 0 && info.sizeBytes in 0..MAX_APK_BYTES)

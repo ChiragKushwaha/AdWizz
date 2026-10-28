@@ -46,11 +46,15 @@ URL="https://github.com/$REPO/releases/download/$TAG/AdWizz.apk"
 
 NOTES="$NOTES" CODE="$CODE" NAME="$NAME" URL="$URL" SHA="$SHA" SIZE="$SIZE" python3 - <<'EOF'
 import json, os
-json.dump({
+# Keep other entries (e.g. "focus", the Reels Blocker add-on from scripts/release-addon.sh).
+try: m = json.load(open("docs/update.json"))
+except FileNotFoundError: m = {}
+m.update({
     "versionCode": int(os.environ["CODE"]), "versionName": os.environ["NAME"],
     "apkUrl": os.environ["URL"], "sha256": os.environ["SHA"],
     "sizeBytes": int(os.environ["SIZE"]), "notes": os.environ["NOTES"],
-}, open("docs/update.json", "w"), indent=2)
+})
+json.dump(m, open("docs/update.json", "w"), indent=2)
 EOF
 
 git add docs/update.json

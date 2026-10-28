@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Reads the "Block Reels & Shorts" switch from AdWizz. Only granted when both apps are
+         signed with the same key. -->
+    <uses-permission android:name="${mainAppId}.permission.FOCUS_STATE" />
+    <queries>
+        <package android:name="${mainAppId}" />
+    </queries>
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <!-- Leaves short-video screens while the switch in AdWizz is on. -->
+        <service
+            android:name=".ShortVideoBlockerService"
+            android:exported="false"
+            android:label="@string/short_video_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/short_video_blocker" />
+        </service>
+    </application>
+</manifest>

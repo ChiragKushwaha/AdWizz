@@ -14,9 +14,16 @@ import java.io.File
 internal object ApkInstaller {
     private const val ACTION_RESULT = "rocks.chirag.adwizz.INSTALL_RESULT"
 
-    /** The APK must be this app, signed with exactly this app's certificate (Android checks too). */
+    private const val EXTRA_TARGET = "target"
+    const val TARGET_SELF = "self"
+    const val TARGET_ADDON = "addon"
+
+    /**
+     * The APK must be [packageName] (this app by default), signed with exactly this app's
+     * certificate (for updates Android checks too; for the add-on only this check stands).
+     */
     @Suppress("DEPRECATION")
-    fun isOurs(context: Context, apk: File): Boolean {
+    fun isOurs(context: Context, apk: File, packageName: String = context.packageName): Boolean {
         val pm = context.packageManager
         val flag = if (Build.VERSION.SDK_INT >= 28) PackageManager.GET_SIGNING_CERTIFICATES else PackageManager.GET_SIGNATURES
         fun certs(info: PackageInfo?): Set<String> = when {
@@ -26,17 +33,18 @@ internal object ApkInstaller {
         }
         val theirs = pm.getPackageArchiveInfo(apk.path, flag)
         val mine = certs(pm.getPackageInfo(context.packageName, flag))
-        return theirs?.packageName == context.packageName && mine.isNotEmpty() && mine == certs(theirs)
+        return theirs?.packageName == packageName && mine.isNotEmpty() && mine == certs(theirs)
     }
 
     /**
      * Starts the install. On Android 12+ it asks to skip the "Update this app?" screen: Android
      * honours that once AdWizz installed the previous version itself (every update after the first).
      */
-    fun install(context: Context, apk: File) {
+    fun install(context: Context, apk: File, packageName: String = context.packageName) {
+        val target = if (packageName == context.packageName) TARGET_SELF else TARGET_ADDON
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
-            setAppPackageName(context.packageName)
+            setAppPackageName(packageName)
             setSize(apk.length())
             if (Build.VERSION.SDK_INT >= 31) setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
         }
@@ -47,8 +55,10 @@ internal object ApkInstaller {
                 session.fsync(out)
             }
             val intent = Intent(context, InstallResultReceiver::class.java).setAction(ACTION_RESULT)
+                .putExtra(EXTRA_TARGET, target)
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0)
-            session.commit(PendingIntent.getBroadcast(context, 7, intent, flags).intentSender)
+            val requestCode = if (target == TARGET_SELF) 7 else 8
+            session.commit(PendingIntent.getBroadcast(context, requestCode, intent, flags).intentSender)
         }
     }
 }
@@ -56,6 +66,7 @@ internal object ApkInstaller {
 /** PackageInstaller results: shows Android's confirm screen when it asks for one. */
 class InstallResultReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val addon = intent.getStringExtra("target") == ApkInstaller.TARGET_ADDON
         when (val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                 @Suppress("DEPRECATION")
@@ -64,8 +75,11 @@ class InstallResultReceiver : BroadcastReceiver() {
                 confirm?.let { context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
             }
             // The app is replaced and restarts on the new version; BootReceiver turns protection back on.
-            PackageInstaller.STATUS_SUCCESS -> Unit
-            else -> Updater.onInstallFailed(intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "Install failed ($status)")
+            PackageInstaller.STATUS_SUCCESS -> if (addon) FocusAddon.onInstalled()
+            else -> {
+                val message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "Install failed ($status)"
+                if (addon) FocusAddon.onInstallFailed(status, message) else Updater.onInstallFailed(message)
+            }
         }
     }
 }

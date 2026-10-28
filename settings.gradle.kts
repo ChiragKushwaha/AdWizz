@@ -17,4 +17,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AdWizz"
-include(":app")
+include(":app", ":focus")

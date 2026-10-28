@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AdWizz Reels Blocker</string>
+    <string name="short_video_service_label">AdWizz Reels Blocker</string>
+    <string name="short_video_service_description">Leaves Instagram Reels and YouTube Shorts, backs out of Shorts, Reels and TikTok pages in browsers like Chrome, and closes short-video apps like TikTok and Moj, while "Block Reels &amp; Shorts" is on in AdWizz. In apps it only checks which screen is open; in browsers it only reads the address bar. It does not read your messages or what you type, and nothing leaves your phone.</string>
+</resources>

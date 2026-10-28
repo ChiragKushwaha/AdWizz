@@ -1,24 +1,20 @@
 package rocks.chirag.adwizz.focus
 
 import android.accessibilityservice.AccessibilityService
-import android.content.ComponentName
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import android.provider.Settings as AndroidSettings
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
-import rocks.chirag.adwizz.data.Settings
 
 /**
  * Backs out of Reels / Shorts in apps and browsers (and closes short-video-only apps) while the
- * "Block Reels & Shorts" switch is on. In apps it only checks which screen is open; in browsers
+ * "Block Reels & Shorts" switch in AdWizz is on. In apps it only checks which screen is open; in browsers
  * it reads the address bar, nothing else on the page.
  */
 class ShortVideoBlockerService : AccessibilityService() {
-    private lateinit var settings: Settings
+    private var switch: FocusSwitch? = null
     private val handler = Handler(Looper.getMainLooper())
     private var pendingPkg: String? = null
     private var lastActionAt = 0L
@@ -27,11 +23,11 @@ class ShortVideoBlockerService : AccessibilityService() {
     private val check = Runnable { pendingPkg?.let { pendingPkg = null; checkScreen(it) } }
 
     override fun onServiceConnected() {
-        settings = Settings(this)
+        switch = FocusSwitch(this).also { it.start() }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (!::settings.isInitialized || !settings.blockShortVideos) return
+        if (switch?.on != true) return
         val pkg = event.packageName?.toString() ?: return
         val sinceAction = SystemClock.uptimeMillis() - lastActionAt
 
@@ -88,6 +84,7 @@ class ShortVideoBlockerService : AccessibilityService() {
 
     override fun onDestroy() {
         handler.removeCallbacks(check)
+        switch?.stop()
         super.onDestroy()
     }
 
@@ -96,14 +93,5 @@ class ShortVideoBlockerService : AccessibilityService() {
         /** Gives the app time to leave the screen before we look again, so we don't double-back. */
         private const val COOLDOWN_MS = 1000L
         private const val TOAST_GAP_MS = 4000L
-
-        /** True if the user has turned this service on in Accessibility settings. */
-        fun isEnabled(context: Context): Boolean {
-            val me = ComponentName(context, ShortVideoBlockerService::class.java)
-            val enabled = AndroidSettings.Secure.getString(
-                context.contentResolver, AndroidSettings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            ) ?: return false
-            return enabled.split(':').any { ComponentName.unflattenFromString(it) == me }
-        }
     }
 }

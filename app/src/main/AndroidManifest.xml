@@ -16,12 +16,20 @@
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" tools:node="remove" />
 
+    <!-- Lets the "AdWizz Reels Blocker" add-on read the "Block Reels & Shorts" switch. Signature-only:
+         just our own add-on, signed with the same key, can hold it. -->
+    <permission
+        android:name="${applicationId}.permission.FOCUS_STATE"
+        android:protectionLevel="signature" />
+
     <!-- Lets the "Excluded apps" picker list installed apps (Android 11+ package visibility). -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- Whether the Reels blocker add-on is installed. -->
+        <package android:name="${focusPackage}" />
     </queries>
 
     <application
@@ -88,18 +96,11 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
-        <!-- Optional "Block Reels & Shorts": leaves short-video screens. Off until the user enables it. -->
-        <service
-            android:name=".focus.ShortVideoBlockerService"
-            android:exported="false"
-            android:label="@string/short_video_service_label"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/short_video_blocker" />
-        </service>
+        <!-- The "Block Reels & Shorts" switch, for the add-on (see FocusStateProvider). -->
+        <provider
+            android:name=".focus.FocusStateProvider"
+            android:authorities="${applicationId}.focusstate"
+            android:exported="true"
+            android:permission="${applicationId}.permission.FOCUS_STATE" />
     </application>
 </manifest>

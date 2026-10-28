@@ -30,7 +30,13 @@ android {
         versionName = "1.2.1"
         // Phones (and Apple-silicon emulators) are ARM; x86 builds would only add size.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
+        // The optional "AdWizz Reels Blocker" add-on (the :focus module).
+        buildConfigField("String", "FOCUS_PACKAGE", "\"rocks.chirag.adwizz.focus\"")
+        manifestPlaceholders["focusPackage"] = "rocks.chirag.adwizz.focus"
     }
+
+    // ShortVideoRules is shared with the add-on: AdWizz uses its DNS domains, the add-on the rest.
+    sourceSets["main"].java.srcDir("../shared/focus-rules")
 
     // The UI is English-only: don't ship every library's ~80 translations.
     androidResources { localeFilters += listOf("en") }
@@ -64,6 +70,8 @@ android {
             // install ("App not installed": the debug and release keys differ). Registered in Firebase.
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            buildConfigField("String", "FOCUS_PACKAGE", "\"rocks.chirag.adwizz.focus.debug\"")
+            manifestPlaceholders["focusPackage"] = "rocks.chirag.adwizz.focus.debug"
         }
         release {
             isMinifyEnabled = true

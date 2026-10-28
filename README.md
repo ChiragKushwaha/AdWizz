@@ -96,6 +96,9 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 - **Reels & Shorts:** these come from the same servers as the rest of Instagram and YouTube, so DNS
   can't block them. The optional *Block Reels & Shorts* switch uses an Accessibility service instead:
   it checks which screen those apps are showing and presses Back when it's a short-video player.
+  That service ships as a separate 50 KB add-on, *AdWizz Reels Blocker*, which AdWizz downloads and
+  installs when the switch is turned on. Play Protect blocks any downloaded app that can use
+  Accessibility, so keeping it out of AdWizz lets the ad blocker itself install normally.
 - **Limits:** ads served from the *same* servers as the content (YouTube, Instagram feed ads, and
   the video ads stitched into Prime Video, JioHotstar and other streams) can't be separated by DNS —
   no DNS blocker can. When an in-app banner is blocked, the app may leave an empty gap where it would
@@ -155,10 +158,12 @@ Website: `docs/` on GitHub Pages. Fresh screenshots: `scripts/capture-screenshot
 | `core/` | Plain Java, no Android: `IpPacket`/`IpBuilder`/`Bytes` (packets), `DnsMessage`/`DnsResponse` (DNS), `DomainSet` + `DomainHash` (compact domain table), `DomainMatcher`, `ListParser`, `GeneratedDomain` |
 | `vpn/` | `AdBlockVpnService` (lifecycle), `TunnelSetup` + `ResolverLists`, `PacketPump` (read → filter → answer), `UpstreamDns`, `NetworkWatcher`, `Maintenance`, notification, Quick Settings tile |
 | `data/` | `Settings`, `Sources`, `BlocklistRepository` + downloader, `VpnState`, updater (`Updater`, `UpdateNotifier`, `ApkInstaller`, …) |
-| `focus/` | `ShortVideoBlockerService` (Accessibility service behind *Block Reels & Shorts*) + `ShortVideoRules` (which screens count as short video) |
+| `app/…/focus/` | `FocusStateProvider`: shares the *Block Reels & Shorts* switch with the add-on (signature-only) |
+| `focus/` (module) | The *AdWizz Reels Blocker* add-on: `ShortVideoBlockerService` (Accessibility service) + `FocusSwitch` (reads the switch from AdWizz). Released with `scripts/release-addon.sh` |
+| `shared/focus-rules/` | `ShortVideoRules` (which screens and domains count as short video), compiled into both apps |
 | `share/` | The Devices screen's local setup page: `ShareServer`, `HttpIo`, `SetupPage`, `MobileConfig`, `LanAddress` |
 | `ui/` | Compose UI: `AppScreen` (bottom bar: Home / Settings / Devices), home (`WizardStage` + `Stage*`), settings sections, pixel kit, theme + radial reveal |
-| `scripts/` | `make_wizard.py` (wizard art + icons), `extract_design_assets.py`, release, screenshots, device test |
+| `scripts/` | `make_wizard.py` (wizard art + icons), `extract_design_assets.py`, release (app + add-on), screenshots, device test |
 | `docs/` | The website |
 
 Every source file is kept under ~120 lines.
