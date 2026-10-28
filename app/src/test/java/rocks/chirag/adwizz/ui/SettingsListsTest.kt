@@ -58,7 +58,7 @@ class SettingsListsTest : UiTestBase() {
     @Test fun excludedCountShownOnButton() {
         Settings(ctx).excludedApps = setOf("com.a", "com.b")
         // Re-open the tab so it re-reads settings.
-        openTab("tab_activity"); openTab("tab_settings")
+        openTab("tab_home"); openTab("tab_settings")
         scrollTo("settingsList", "2 app(s) excluded", substring = true).assertIsDisplayed()
     }
 

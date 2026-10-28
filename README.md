@@ -16,16 +16,18 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/home-light.webp" width="230" alt="Home screen: a monitor full of ads, wizard ready to cast">
+  <img src="docs/screenshots/home-light.webp" width="230" alt="Home screen: a monitor full of ads, wizard ready to cast, Home / Settings / Devices in the bottom bar">
   &nbsp;
   <img src="docs/screenshots/spell.webp" width="230" alt="The wizard casting the spell">
   &nbsp;
-  <img src="docs/screenshots/home-dark.webp" width="230" alt="Protected, at night: the monitor says NO ADS">
+  <img src="docs/screenshots/home-dark.webp" width="230" alt="Protected, at night: the monitor says NO ADS, recent activity below">
 </p>
 <p align="center">
-  <img src="docs/screenshots/settings.webp" width="230" alt="Protection settings: trackers, gibberish domains, malicious scripts">
+  <img src="docs/screenshots/settings.webp" width="230" alt="Full-screen settings: theme, DNS, trackers, gibberish domains, malicious scripts">
   &nbsp;
-  <img src="docs/screenshots/devices.webp" width="230" alt="Devices tab: a QR code that sets up ad blocking on other devices">
+  <img src="docs/screenshots/focus.webp" width="230" alt="The Block Reels &amp; Shorts switch and the blocklists">
+  &nbsp;
+  <img src="docs/screenshots/devices.webp" width="230" alt="Devices screen: a QR code that sets up ad blocking on other devices">
 </p>
 
 ---
@@ -50,6 +52,7 @@ never arrive. 🪄
 | 🎭 **Unmasking** | Catches trackers disguised as the site's own address (CNAME cloaking) |
 | 🛡️ **Anti-dark-magic** | Phishing sites and crypto-mining scripts |
 | 🧱 **Bypass barrier** | Apps that sneak around your DNS (hard-coded Google/Cloudflare, DNS-over-HTTPS) get caught |
+| 🎬 **Scroll-stopper** | Optional: backs out of Instagram Reels and YouTube Shorts, and closes TikTok, Moj, Josh and Chingari |
 | 🙈 **Invisibility cloak** | Exclude banking/streaming apps that refuse to run with a VPN |
 | 📡 **Share the magic** | A QR code sets up ad blocking on iPhones, Macs and laptops on your hotspot |
 | ✨ **Self-renewing** | Tells you when a new version is out and updates in one tap |
@@ -90,9 +93,14 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 - **Lists:** a built-in starter list (works offline) plus StevenBlack, AdGuard DNS, HaGeZi Pro,
   EasyPrivacy, phone-maker telemetry lists, Phishing Army and NoCoin — about 790,000 domains,
   refreshed every 2 days, stored in a compact table (about 25 bytes per domain) so it stays light.
-- **Honest limits:** ads served from the *same* servers as the content (YouTube, Instagram feed ads)
-  can't be separated by DNS — no DNS blocker can. Devices on your hotspot don't pass through an
-  Android VPN, which is what the Devices tab's QR code is for.
+- **Reels & Shorts:** these come from the same servers as the rest of Instagram and YouTube, so DNS
+  can't block them. The optional *Block Reels & Shorts* switch uses an Accessibility service instead:
+  it checks which screen those apps are showing and presses Back when it's a short-video player.
+- **Limits:** ads served from the *same* servers as the content (YouTube, Instagram feed ads, and
+  the video ads stitched into Prime Video, JioHotstar and other streams) can't be separated by DNS —
+  no DNS blocker can. When an in-app banner is blocked, the app may leave an empty gap where it would
+  have been: AdWizz can't change another app's layout. Devices on your hotspot don't pass through an
+  Android VPN, which is what the Devices screen's QR code is for.
 
 ## 🔒 Privacy
 
@@ -101,6 +109,8 @@ list of what was blocked lives only in your phone's memory. AdWizz talks to the 
 the public blocklist mirrors, this repo's website (to check for updates), and Google Firebase for
 anonymous usage statistics, crash reports and performance data (app opens, start-up time, device
 model). It never sends the sites or apps you use, and the advertising ID is turned off.
+The optional Reels & Shorts blocker only looks at Instagram, YouTube and short-video apps, only
+checks which screen is open (not what's on it), and keeps nothing.
 
 ---
 
@@ -118,7 +128,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 ### Test
 
-- `./gradlew testDebugUnitTest` — 201 JVM + Robolectric tests: packet/DNS parsing (with fuzzing),
+- `./gradlew testDebugUnitTest` — 203 JVM + Robolectric tests: packet/DNS parsing (with fuzzing),
   blocklists, the update manifest, the share server, every UI screen, the theme reveal and the spell.
 - `./gradlew testDebugUnitTest -Plive=true` — also checks canyoublockit.com against the live lists.
 - `scripts/device-adblock-test.sh` — on a connected phone with a debug build: opens the test site in
@@ -145,8 +155,9 @@ Website: `docs/` on GitHub Pages. Fresh screenshots: `scripts/capture-screenshot
 | `core/` | Plain Java, no Android: `IpPacket`/`IpBuilder`/`Bytes` (packets), `DnsMessage`/`DnsResponse` (DNS), `DomainSet` + `DomainHash` (compact domain table), `DomainMatcher`, `ListParser`, `GeneratedDomain` |
 | `vpn/` | `AdBlockVpnService` (lifecycle), `TunnelSetup` + `ResolverLists`, `PacketPump` (read → filter → answer), `UpstreamDns`, `NetworkWatcher`, `Maintenance`, notification, Quick Settings tile |
 | `data/` | `Settings`, `Sources`, `BlocklistRepository` + downloader, `VpnState`, updater (`Updater`, `UpdateNotifier`, `ApkInstaller`, …) |
-| `share/` | The Devices tab's local setup page: `ShareServer`, `HttpIo`, `SetupPage`, `MobileConfig`, `LanAddress` |
-| `ui/` | Compose UI: home (`WizardStage` + `Stage*`), tabs, settings sections, pixel kit, theme + radial reveal |
+| `focus/` | `ShortVideoBlockerService` (Accessibility service behind *Block Reels & Shorts*) + `ShortVideoRules` (which screens count as short video) |
+| `share/` | The Devices screen's local setup page: `ShareServer`, `HttpIo`, `SetupPage`, `MobileConfig`, `LanAddress` |
+| `ui/` | Compose UI: `AppScreen` (bottom bar: Home / Settings / Devices), home (`WizardStage` + `Stage*`), settings sections, pixel kit, theme + radial reveal |
 | `scripts/` | `make_wizard.py` (wizard art + icons), `extract_design_assets.py`, release, screenshots, device test |
 | `docs/` | The website |
 

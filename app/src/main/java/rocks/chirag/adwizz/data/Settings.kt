@@ -78,6 +78,11 @@ class Settings(context: Context) {
         get() = prefs.getStringSet("excluded_apps", emptySet())!!.toSet()
         set(v) = prefs.edit { putStringSet("excluded_apps", v) }
 
+    /** Leave Reels / Shorts screens (needs the accessibility service switched on too). */
+    var blockShortVideos: Boolean
+        get() = prefs.getBoolean("block_short_videos", false)
+        set(v) = prefs.edit { putBoolean("block_short_videos", v) }
+
     /** "system", "light" or "dark". */
     var themeMode: String
         get() = prefs.getString("theme_mode", "system")!!

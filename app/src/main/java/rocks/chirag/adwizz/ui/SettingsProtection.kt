@@ -24,7 +24,7 @@ internal fun ProtectionSection() {
             "and phone-maker telemetry (Samsung, Xiaomi, TikTok…).") { reload(context) }
     SettingSwitch(settings, Settings::blockGenerated, "Block gibberish ad domains",
         "Catches brand-new ad domains like pgjlctmswgnwf.com before any list has them. " +
-            "If a site breaks, allow it from the Activity tab.") { reload(context) }
+            "If a site breaks, tap it in Recent activity on Home to allow it.") { reload(context) }
     SettingSwitch(settings, Settings::blockMalicious, "Block malicious & crypto-mining scripts",
         "Phishing and scam sites, and scripts that mine crypto-currency in your browser.") { reload(context) }
 }

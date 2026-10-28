@@ -90,16 +90,16 @@ class HomeScreenTest : UiTestBase() {
         rule.onNodeWithTag("stat_List").assertTextEquals("42")
     }
 
-    @Test fun allThreeTabsExistAndSwitch() {
+    @Test fun allThreeScreensExistAndSwitch() {
         launchApp()
-        rule.onNodeWithTag("tab_activity").assertIsSelected()
+        rule.onNodeWithTag("tab_home").assertIsSelected()
         openTab("tab_settings")
         rule.onNodeWithTag("tab_settings").assertIsSelected()
         rule.onNodeWithText("Appearance").assertIsDisplayed()
         openTab("tab_devices")
         rule.onNodeWithTag("tab_devices").assertIsSelected()
         rule.onNodeWithText("Protect other devices").assertIsDisplayed()
-        openTab("tab_activity")
+        openTab("tab_home")
         rule.onNodeWithText("once protection is on", substring = true).assertIsDisplayed()
     }
 }

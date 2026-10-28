@@ -84,7 +84,7 @@ internal class PacketPump(
         }
     }
 
-    /** Records the decision for the Activity tab (and the debug log used by the device test). */
+    /** Records the decision for the Recent activity list (and the debug log used by the device test). */
     private inline fun decided(name: String, blocked: Boolean, response: () -> ByteArray): ByteArray {
         VpnState.record(name, blocked)
         if (BuildConfig.DEBUG) Log.d(DNS_LOG_TAG, (if (blocked) "BLOCK " else "ALLOW ") + name)

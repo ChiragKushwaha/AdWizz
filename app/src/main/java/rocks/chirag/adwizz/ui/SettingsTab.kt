@@ -17,6 +17,7 @@ internal fun SettingsTab() {
         item { AppearanceSection() }
         item { DnsSection() }
         item { ProtectionSection() }
+        item { ShortVideoSection() }
         item { ExcludedAppsSection() }
         item { BlocklistSection() }
         item { AllowlistSection() }
