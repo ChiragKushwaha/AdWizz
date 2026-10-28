@@ -22,9 +22,9 @@ class WizardArtTest {
         assertNotEquals(WizardArt.IDLE.joinToString(), WizardArt.CASTING.joinToString())
     }
 
-    @Test fun wizardHasHatHairCloakEyesAndBroom() {
+    @Test fun wizardHasHairGlassesStarCloakEyesAndBroom() {
         val all = WizardArt.CASTING.joinToString("")
-        listOf('H', 'N', 'C', 'K', 'Y', 'F', 'E').forEach { assertTrue("missing '$it'", it in all) }
+        listOf('N', 'G', 'S', 'C', 'K', 'Y', 'F', 'E').forEach { assertTrue("missing '$it'", it in all) }
     }
 }
 

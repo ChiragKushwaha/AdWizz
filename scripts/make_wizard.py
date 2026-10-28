@@ -8,20 +8,20 @@ Generates AdWizz's pixel-art wizard from one definition:
   - app/src/main/res/mipmap-*/ic_launcher.png                (icons for Android 6-7)
   - app/src/main/res/drawable/ic_shield.xml                  (notification / tile icon)
 
-The wizard is an original character: pointy starry hat, white beard, blue robe, riding a broom.
+The wizard is an original character: a young wizard with messy brown hair, round glasses, a gold
+star on the forehead and a dark cloak, riding a broom.
 Run from the repo root:  python3 scripts/make_wizard.py   (needs Pillow for the PNGs)
 """
 import os
 
 W, H = 56, 50
+WAND_X, WAND_Y = 2, 18  # wand tip in the casting frame, before cropping
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, "app/src/main/res")
 
 PALETTE = {
     "O": "#1B1720",  # outline
-    "H": "#5B3F99",  # hat
-    "h": "#41297A",  # hat shade
-    "S": "#F4C95D",  # gold (band, star, wand tip)
+    "S": "#F4C95D",  # gold (forehead star, wand tip)
     "F": "#F6D3B8",  # skin
     "f": "#E8B99A",  # skin shade
     "E": "#1B1720",  # eye
@@ -38,6 +38,8 @@ PALETTE = {
     "y": "#4E2F1B",  # bristle shade
     "M": "#B5432F",  # broom band
     "W": "#6B4220",  # wand
+    "G": "#2A2333",  # glasses frame
+    "g": "#CFE3F5",  # lens glint
     "D": "#2A2333",  # boot
 }
 
@@ -78,7 +80,7 @@ def wizard(casting):
     """
     Young chibi wizard in the design's pixel style: oversized head (~2/3 of the height), messy
     hair, big eyes, tiny dark cloak, flying on a broom with the bristles behind (left).
-    Deliberately original: pointed hat, no round glasses, no scar.
+    Round glasses and a gold star on the forehead (AdWizz's mark: the spell's star).
     """
     g = blank()
     # Broom: twig bristles on the left, red band, stick rising gently to the right.
@@ -101,37 +103,47 @@ def wizard(casting):
     # Head: big round face with slight shading on the right.
     ellipse(g, 29, 26, 15, 11.5, "F")
     ellipse(g, 39, 28, 5, 7, "f")
-    # Hair: messy mop. Jagged bangs of uneven length, side locks over the ears, darker strands
-    # on the shadow side (right), like the design's chunky pixel hair.
-    ellipse(g, 29, 17, 17, 8, "N")
-    bangs = [3, 5, 6, 4, 2, 4, 7, 5, 3, 1, 3, 6, 8, 6, 3, 2, 4, 6, 5, 3, 2, 4, 7, 5, 2, 3, 5, 4, 2, 1]
+    # Hair: messy mop with tufts sticking up (no hat). Jagged bangs of uneven length, side locks
+    # over the ears, darker strands on the shadow side (right).
+    ellipse(g, 29, 15, 17, 8, "N")
+    # Tufts: little triangles leaning back (right), like wind in the hair while flying.
+    for tip_x, tip_y, base in [(17, 7, 3), (22, 5, 3), (28, 4, 3), (34, 4, 3), (40, 6, 3), (45, 9, 2)]:
+        for y in range(tip_y, 10):
+            w = (y - tip_y) * base / (10 - tip_y) + 0.5
+            rect(g, int(tip_x - w), y, int(tip_x + w * 0.6), y, "N")
+    bangs = [3, 5, 6, 4, 0, 0, 0, 0, 1, 1, 3, 6, 7, 6, 3, 2, 4, 6, 5, 3, 2, 4, 6, 5, 2, 3, 5, 4, 2, 1]
     for i, depth in enumerate(bangs):
         x = 15 + i
-        rect(g, x, 18, x, 18 + depth, "N")
+        rect(g, x, 16, x, 18 + depth, "N")
     rect(g, 12, 18, 15, 30, "N"); rect(g, 11, 22, 12, 27, "N")
     rect(g, 43, 18, 46, 29, "N"); rect(g, 46, 21, 47, 26, "N")
-    for x, top, bot in [(17, 21, 23), (22, 22, 24), (30, 22, 25), (36, 21, 24), (41, 20, 23)]:
+    for x, top, bot in [(17, 21, 23), (30, 21, 25), (36, 21, 24), (41, 20, 23)]:
         rect(g, x, top, x, bot, "n")
-    ellipse(g, 41, 16, 6, 5, "n", top=14)
+    for x, y0 in [(28, 6), (34, 6), (40, 8)]:
+        rect(g, x, y0, x, y0 + 4, "n")
+    ellipse(g, 43, 15, 3, 4, "n", top=12)
     rect(g, 44, 19, 46, 29, "n")
-    # Eyebrows, big eyes with glints, rosy cheeks, small smile.
-    rect(g, 21, 24, 25, 24, "n"); rect(g, 33, 24, 37, 24, "n")
+    # Gold star on the forehead, where the bangs part.
+    rect(g, 19, 19, 23, 23, "F")
+    px(g, 21, 19, "S"); rect(g, 19, 20, 23, 20, "S"); rect(g, 20, 21, 22, 21, "S")
+    px(g, 20, 22, "S"); px(g, 22, 22, "S")
+    # Big eyes with glints, rosy cheeks, small smile.
     for ex in (22, 34):
         ellipse(g, ex + 1.5, 28.5, 2.4, 3.2, "E")
         rect(g, ex, 26, ex + 1, 27, "w")
         px(g, ex + 3, 30, "w")
-    ellipse(g, 19, 32, 2, 1.2, "P"); ellipse(g, 40, 32, 2, 1.2, "P")
-    line(g, 28, 34, 31, 34, "f"); px(g, 27, 33, "f"); px(g, 32, 33, "f")
-    # Pointed hat with gold band and star, tip flopping back to the right.
-    ellipse(g, 29, 12, 18, 2.6, "h")
-    rect(g, 17, 10, 41, 11, "S")
-    for i, y in enumerate(range(9, 0, -1)):
-        x0 = 18 + i * 1.3 + (i * i) * 0.12
-        x1 = 40 - i * 0.6 + (i * i) * 0.25
-        rect(g, int(x0), y, int(x1), y, "H")
-    rect(g, 44, 0, 50, 1, "H"); px(g, 51, 2, "S")
-    line(g, 34, 2, 37, 9, "h", thick=2)
-    rect(g, 24, 5, 25, 7, "S"); rect(g, 23, 6, 26, 6, "S")
+    ellipse(g, 18, 33, 2, 1.2, "P"); ellipse(g, 41, 33, 2, 1.2, "P")
+    line(g, 28, 35, 31, 35, "f"); px(g, 27, 34, "f"); px(g, 32, 34, "f")
+    # Round glasses: a ring around each eye, a bridge, arms back to the hair, glints on the lenses.
+    for cx in (23.5, 35.5):
+        for y in range(22, 36):
+            for x in range(int(cx) - 6, int(cx) + 7):
+                d = ((x - cx) / 4.6) ** 2 + ((y - 28.5) / 4.9) ** 2
+                if 0.6 <= d <= 1.0:
+                    px(g, x, y, "G")
+        px(g, int(cx + 2), 25, "g")
+    rect(g, 28, 27, 31, 27, "G")
+    rect(g, 13, 27, 18, 27, "G"); rect(g, 40, 27, 44, 27, "G")
     if casting:
         # Arm thrown forward, wand pointing up-left with a glowing star tip.
         line(g, 19, 37, 12, 31, "C", thick=3)
@@ -182,8 +194,8 @@ object WizardArt {{
     const val HEIGHT = {H}
 
     /** Wand tip cell in the casting frame, where the spell sparkles start. */
-    const val WAND_X = 2
-    const val WAND_Y = 18
+    const val WAND_X = {WAND_X}
+    const val WAND_Y = {WAND_Y}
 
     val palette: Map<Char, Color> = mapOf(
 {pal},
@@ -267,14 +279,14 @@ def write_icon_xml(g):
         with open(os.path.join(RES, "drawable", name + ".xml"), "w") as f:
             f.write(xml)
 
-    # Notification / tile icon: white wizard-hat silhouette (status bar icons must be one colour).
+    # Notification / tile icon: white pixel star, the wizard's mark (status bar icons must be one colour).
     hat = """<?xml version="1.0" encoding="utf-8"?>
-<!-- GENERATED by scripts/make_wizard.py: pixel wizard hat -->
+<!-- GENERATED by scripts/make_wizard.py: pixel star -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="#FFFFFFFF"
-        android:pathData="M14,2h4v2h-2v2h-2zM12,6h4v4h-4zM10,10h6v4h-6zM8,14h10v4h-8zM3,18h18v3h-18z" />
+        android:pathData="M11,2h2v5h-2zM9,7h6v1h-6zM2,8h20v2h-20zM5,10h14v2h-14zM7,12h10v3h-10zM6,15h4v2h-4zM14,15h4v2h-4zM5,17h3v3h-3zM16,17h3v3h-3z" />
 </vector>
 """
     with open(os.path.join(RES, "drawable", "ic_shield.xml"), "w") as f:
@@ -317,9 +329,69 @@ def write_pngs(g):
     if os.path.exists(stale): os.remove(stale)
 
 
+def sprite_image(g, cell):
+    """The sprite as an RGBA image, [cell] pixels per cell."""
+    from PIL import Image
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    for y in range(H):
+        for x in range(W):
+            if g[y][x] != ".":
+                img.putpixel((x, y), tuple(int(PALETTE[g[y][x]][i:i + 2], 16) for i in (1, 3, 5)) + (255,))
+    return img.resize((W * cell, H * cell), Image.NEAREST)
+
+
+def write_web(idle, cast, size_label):
+    """Website images in docs/img: hero sprites, favicon, home-screen icon and the social card."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        print("Pillow not installed: skipping website images")
+        return
+    img_dir = os.path.join(ROOT, "docs/img")
+    sprite_image(idle, 8).save(os.path.join(img_dir, "wizard.png"), optimize=True)
+    sprite_image(cast, 8).save(os.path.join(img_dir, "wizard-cast.png"), optimize=True)
+    for name, size in (("favicon.png", 48), ("icon-192.png", 192)):
+        Image.open(os.path.join(RES, "mipmap-xxxhdpi", "ic_launcher.webp")).resize((size, size), Image.LANCZOS) \
+            .save(os.path.join(img_dir, name), optimize=True)
+
+    # Social card (1200x630): pixel sky and hills, title, tagline, and the wizard on the right.
+    sky, cloud, hill_back, hill_front, ink = "#DCE5EE", "#F4F1EA", "#9C8FAE", "#6B5878", "#5E1A1D"
+    card = Image.new("RGB", (1200, 630), sky)
+    d = ImageDraw.Draw(card)
+    for x, y, w in ((60, 72, 144), (570, 168, 96), (840, 36, 72)):
+        d.rectangle([x, y, x + w, y + 24], fill=cloud); d.rectangle([x + 12, y - 12, x + w - 24, y], fill=cloud)
+    for colour, base, peaks in ((hill_back, 420, (90, 300, 520, 760, 1000, 1180)), (hill_front, 500, (0, 220, 470, 700, 950, 1200))):
+        for x in range(0, 1200, 12):
+            top = base - max(0, 120 - min(abs(x - p) for p in peaks) * 0.9) // 12 * 12
+            d.rectangle([x, top, x + 11, 630], fill=colour)
+    font = os.path.join(RES, "font", "pixelify_sans.ttf")
+    title, body = ImageFont.truetype(font, 150), ImageFont.truetype(font, 36)
+    d.text((70, 160), "AdWizz", font=title, fill="#2B0B0D")
+    d.text((64, 154), "AdWizz", font=title, fill=ink)
+    d.text((66, 340), "One spell, and the ads vanish\nin every app on your Android.", font=body, fill=ink, spacing=12)
+    badge = f"Free · No root · {size_label}"
+    d.rectangle([66, 452, 66 + d.textlength(badge, font=body) + 48, 508], fill=ink)
+    d.text((90, 460), badge, font=body, fill="#F4F1EA")
+    wiz = sprite_image(cast, 10)
+    card.paste(wiz, (1200 - wiz.width - 30, 630 - wiz.height - 70), wiz)
+    card.save(os.path.join(img_dir, "og.png"), optimize=True)
+
+
+def crop_top(*frames):
+    """Drops the empty rows above the sprite (shared by all frames). Returns rows dropped."""
+    global H
+    top = min(next(y for y in range(H) if any(c != "." for c in f[y])) for f in frames)
+    for f in frames:
+        del f[:top]
+    H -= top
+    return top
+
+
 if __name__ == "__main__":
     idle, cast = wizard(False), wizard(True)
+    WAND_Y -= crop_top(idle, cast)
     write_kotlin(idle, cast)
     write_icon_xml(cast)
     write_pngs(cast)
+    write_web(idle, cast, "2 MB")
     print("\n".join(rows(cast)))
