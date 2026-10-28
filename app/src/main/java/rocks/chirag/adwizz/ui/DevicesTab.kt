@@ -1,7 +1,7 @@
 package rocks.chirag.adwizz.ui
 
-import android.content.Intent
-import android.provider.Settings as AndroidSettings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -36,6 +37,19 @@ fun DevicesTab(
     server: ShareServer = remember { ShareServer() },
     findIp: () -> String? = { LanAddress.pick(LanAddress.candidates()) },
 ) {
+    val context = LocalContext.current
+    var allowed by remember { mutableStateOf(localNetworkAllowed(context)) }
+    var refused by remember { mutableStateOf(false) }
+    val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        allowed = granted
+        refused = !granted
+    }
+    LifecycleResumeEffect(Unit) {
+        allowed = localNetworkAllowed(context)
+        onPauseOrDispose { }
+    }
+    // Ask right away the first time; after a "Don't allow" the card below explains and retries.
+    LaunchedEffect(Unit) { if (!allowed) ask.launch(LOCAL_NETWORK_PERMISSION) }
     var url by remember { mutableStateOf<String?>(null) }
     var checked by remember { mutableStateOf(false) }
     var renew by remember { mutableIntStateOf(0) }
@@ -43,7 +57,8 @@ fun DevicesTab(
     // Run the server only while this tab is visible; re-check the address in case the hotspot
     // or Wi-Fi is switched on while the screen is open.
     DisposableEffect(server) { onDispose { server.stop() } }
-    LaunchedEffect(server, renew) {
+    LaunchedEffect(server, renew, allowed) {
+        if (!allowed) { server.stop(); url = null; return@LaunchedEffect }
         while (true) {
             url = withContext(Dispatchers.IO) { serveOn(server, findIp()) }
             checked = true
@@ -57,6 +72,9 @@ fun DevicesTab(
             AnimatedContent(targetState = url, label = "qr", transitionSpec = { fadeIn() togetherWith fadeOut() }) { current ->
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     when {
+                        !allowed -> LocalNetworkNeeded(refused) {
+                            if (refused) openAppDetails(context) else ask.launch(LOCAL_NETWORK_PERMISSION)
+                        }
                         current != null -> ShareLink(current)
                         !checked -> CircularProgressIndicator(Modifier.padding(32.dp))
                         server.isExpired -> ExpiredLink { server.stop(); server.clearExpiry(); renew++ }

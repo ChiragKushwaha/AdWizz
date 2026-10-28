@@ -105,15 +105,14 @@ internal fun ShortVideoSection() {
                         "which screen Instagram, YouTube and short-video apps are showing, and which address " +
                         "your browser has open, then presses Back for you.\n\nIt only looks at those apps " +
                         "and browsers, doesn't read your messages, pages or what you type, and nothing " +
-                        "leaves your phone.\n\nOn the next screen, tap \"AdWizz Reels Blocker\" and turn it on."
+                        "leaves your phone.\n\nAndroid needs a few taps to allow it: AdWizz shows each step."
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     dialog = null
-                    setOn(true)
-                    open(context, AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS)
-                }) { Text("Continue") }
+                    setOn(true)   // the setup guide appears under the switch
+                }) { Text("Show me how") }
             },
             dismissButton = { TextButton(onClick = { dialog = null }) { Text("Not now") } },
         )
@@ -150,17 +149,10 @@ private fun FocusStatus(state: AddonState, installed: Boolean, serviceOn: Boolea
         }
         !serviceOn -> {
             note("Needs one more step: turn on \"AdWizz Reels Blocker\" in Accessibility settings.")
-            TextButton(onClick = { open(context, AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS) }) {
-                Text("Open Accessibility settings")
-            }
-            note(
-                "If Android says it's a restricted setting: open the add-on's App info, tap ⋮ (top " +
-                    "right), choose \"Allow restricted settings\", then try again.",
-                error = false,
+            ReelsSetupGuide(
+                onOpenAccessibility = { open(context, AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS) },
+                onOpenAddonInfo = { runCatching { context.startActivity(FocusAddon.appInfoIntent()) } },
             )
-            TextButton(onClick = { runCatching { context.startActivity(FocusAddon.appInfoIntent()) } }) {
-                Text("Open add-on App info")
-            }
         }
     }
 }

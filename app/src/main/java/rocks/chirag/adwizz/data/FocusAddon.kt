@@ -95,6 +95,9 @@ object FocusAddon {
 
     fun dismiss() { _state.value = AddonState.Idle }
 
+    @androidx.annotation.VisibleForTesting
+    internal fun setStateForTest(state: AddonState) { _state.value = state }
+
     /** App info for the add-on: where Android 13+ hides "Allow restricted settings". */
     fun appInfoIntent(): Intent =
         Intent(AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$PACKAGE"))

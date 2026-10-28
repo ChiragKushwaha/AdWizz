@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Android 17+: needed to answer other devices on the hotspot / Wi-Fi (the Devices screen's
+         setup page). Without it Android silently drops the replies. -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- Self-updates from GitHub Releases (the app isn't distributed through Google Play). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- An ad blocker shouldn't read advertising IDs or do ad attribution: Firebase Analytics adds

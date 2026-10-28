@@ -75,10 +75,17 @@ android {
         // allowBackup is off: the add-on keeps no data of its own.
         disable += "DataExtractionRules"
     }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation("androidx.test:core-ktx:1.7.0")
+    testImplementation("androidx.test.ext:junit:1.3.0")
 }
 
 kotlin {

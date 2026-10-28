@@ -1,6 +1,9 @@
 package rocks.chirag.adwizz.ui
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import rocks.chirag.adwizz.share.ShareContent
 
 /** Shown when the setup link timed out (links only live 15 minutes). */
@@ -28,6 +32,32 @@ internal fun ExpiredLink(onRenew: () -> Unit) {
             Text("This link expired", fontWeight = FontWeight.SemiBold)
             Text("Setup links stop working after 15 minutes so nobody else can use them.", style = MaterialTheme.typography.bodySmall)
             TextButton(onClick = onRenew) { Text("Make a new link") }
+        }
+    }
+}
+
+internal const val LOCAL_NETWORK_PERMISSION = "android.permission.ACCESS_LOCAL_NETWORK"
+
+/**
+ * Android 17 blocks apps from talking to devices on the local network (hotspot or Wi-Fi) until
+ * the user allows "Nearby devices". Without it the setup page can't reach the other device.
+ */
+internal fun localNetworkAllowed(context: Context) = Build.VERSION.SDK_INT < 37 ||
+    ContextCompat.checkSelfPermission(context, LOCAL_NETWORK_PERMISSION) == PackageManager.PERMISSION_GRANTED
+
+/** Asks for the local network permission; after a refusal [refused] sends the user to App info. */
+@Composable
+internal fun LocalNetworkNeeded(refused: Boolean, onAllow: () -> Unit) {
+    PixelPanel(Modifier.fillMaxWidth().testTag("localNetwork"), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+        Column(Modifier.padding(16.dp)) {
+            Text("Allow AdWizz to reach nearby devices", fontWeight = FontWeight.SemiBold)
+            Text(
+                "Android needs your OK before other devices on your hotspot or Wi-Fi can open the setup " +
+                    "page. AdWizz only uses it for this page." +
+                    if (refused) "\n\nIn App info, tap Permissions → Nearby devices → Allow." else "",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            TextButton(onClick = onAllow) { Text(if (refused) "Open App info" else "Allow") }
         }
     }
 }
