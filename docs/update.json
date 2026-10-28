@@ -1,8 +1,8 @@
 {
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.0.0/AdWizz.apk",
-  "sha256": "7780cb048177d5df7d3a7bedd014426ef8399fdbe4d58577b15e49b37ce3594c",
-  "sizeBytes": 2124141,
-  "notes": "First release: ads, pop-ups and trackers blocked in every app, pixel wizard design, light & dark mode, self-updates."
+  "versionCode": 2,
+  "versionName": "1.1.0",
+  "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.1.0/AdWizz.apk",
+  "sha256": "4bd055916744420729c7bcad59b31d62889c37c4ee2c695fb33acf44decb1183",
+  "sizeBytes": 2141805,
+  "notes": "Block Instagram Reels & YouTube Shorts with one switch, plus a bottom bar with full-screen Settings and Devices."
 }
