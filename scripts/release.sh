@@ -11,7 +11,7 @@
 # with AdWizz.apk attached. GitHub Pages then serves the new update.json within a minute or two,
 # and installed apps offer the update (and notify in the background).
 #
-# Needs: the GitHub CLI, logged in once with `gh auth login`.
+# Needs: the GitHub CLI, logged in once with `gh auth login`, and Node (for the website).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -57,7 +57,9 @@ m.update({
 json.dump(m, open("docs/update.json", "w"), indent=2)
 EOF
 
-git add docs/update.json
+# The website shows the version (structured data): rebuild every language's page.
+node scripts/build-site.mjs
+git add docs
 git commit -m "Release $TAG"
 git tag -a "$TAG" -m "AdWizz $TAG"
 git push origin HEAD "$TAG"

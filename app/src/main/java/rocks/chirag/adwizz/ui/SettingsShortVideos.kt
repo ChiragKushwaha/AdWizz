@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import android.content.Context
 import android.content.Intent
@@ -56,12 +57,10 @@ internal fun ShortVideoSection() {
         if (installs > 0 && on && installed && !serviceOn) dialog = FocusDialog.ACCESSIBILITY
     }
 
-    SectionTitle("Focus")
+    SectionTitle(tr("reels.section"))
     SwitchRow(
-        "Block Reels & Shorts",
-        "Leaves Instagram Reels and YouTube Shorts as soon as they open, in the apps and in " +
-            "browsers like Chrome, and closes short-video apps (TikTok, Moj, Josh, Likee and more). " +
-            "With protection on, TikTok and similar sites are blocked in every app too.",
+        tr("reels.title"),
+        tr("reels.desc"),
         on,
     ) { want ->
         when {
@@ -78,14 +77,10 @@ internal fun ShortVideoSection() {
     when (dialog) {
         FocusDialog.ADDON -> AlertDialog(
             onDismissRequest = { dialog = null },
-            title = { Text("Install the Reels Blocker add-on?") },
+            title = { Text(tr("reels.install_title")) },
             text = {
                 Text(
-                    "Blocking Reels and Shorts uses Android's Accessibility service, so it comes as a " +
-                        "small separate app, \"AdWizz Reels Blocker\" (about 50 KB). AdWizz downloads it " +
-                        "from the same place as AdWizz itself and checks it's signed by AdWizz.\n\n" +
-                        "Google Play Protect may block it, because it can use Accessibility. If it does, " +
-                        "AdWizz shows what to do."
+                    tr("reels.install_body")
                 )
             },
             confirmButton = {
@@ -93,29 +88,25 @@ internal fun ShortVideoSection() {
                     dialog = null
                     setOn(true)
                     startAddonInstall(context)
-                }) { Text("Install") }
+                }) { Text(tr("common.install")) }
             },
-            dismissButton = { TextButton(onClick = { dialog = null }) { Text("Not now") } },
+            dismissButton = { TextButton(onClick = { dialog = null }) { Text(tr("common.not_now")) } },
         )
         FocusDialog.ACCESSIBILITY -> AlertDialog(
             onDismissRequest = { dialog = null },
-            title = { Text("Allow the Reels Blocker to see which screen is open?") },
+            title = { Text(tr("reels.a11y_title")) },
             text = {
                 Text(
-                    "To spot Reels and Shorts, the add-on uses Android's Accessibility service to check " +
-                        "which screen Instagram, YouTube and short-video apps are showing, and which address " +
-                        "your browser has open, then presses Back for you.\n\nIt only looks at those apps " +
-                        "and browsers, doesn't read your messages, pages or what you type, and nothing " +
-                        "leaves your phone.\n\nAndroid needs a few taps to allow it: AdWizz shows each step."
+                    tr("reels.a11y_body")
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     dialog = null
                     setOn(true)   // the setup guide appears under the switch
-                }) { Text("Show me how") }
+                }) { Text(tr("reels.show_how")) }
             },
-            dismissButton = { TextButton(onClick = { dialog = null }) { Text("Not now") } },
+            dismissButton = { TextButton(onClick = { dialog = null }) { Text(tr("common.not_now")) } },
         )
         null -> Unit
     }
@@ -130,26 +121,24 @@ private fun FocusStatus(state: AddonState, installed: Boolean, serviceOn: Boolea
         color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
     )
     when {
-        state is AddonState.Downloading -> note("Downloading the Reels Blocker add-on… ${(state.progress * 100).toInt()}%", error = false)
-        state is AddonState.Installing -> note("Installing the Reels Blocker add-on…", error = false)
+        state is AddonState.Downloading -> note(tr("reels.downloading", "percent" to (state.progress * 100).toInt()), error = false)
+        state is AddonState.Installing -> note(tr("reels.installing"), error = false)
         state is AddonState.Failed && state.blocked -> {
             note(
-                "Google Play Protect blocked the add-on because it can use Accessibility. To install it " +
-                    "anyway: open the Play Store, tap your profile picture → Play Protect → ⚙ settings, turn " +
-                    "off \"Scan apps with Play Protect\", tap Try again here, then turn scanning back on."
+                tr("reels.blocked")
             )
-            TextButton(onClick = { startAddonInstall(context) }) { Text("Try again") }
+            TextButton(onClick = { startAddonInstall(context) }) { Text(tr("common.try_again")) }
         }
         state is AddonState.Failed -> {
-            note("Couldn't install the add-on: ${state.message}")
-            TextButton(onClick = { startAddonInstall(context) }) { Text("Try again") }
+            note(tr("reels.failed", "error" to state.message))
+            TextButton(onClick = { startAddonInstall(context) }) { Text(tr("common.try_again")) }
         }
         !installed -> {
-            note("Needs the Reels Blocker add-on.")
-            TextButton(onClick = { startAddonInstall(context) }) { Text("Install add-on") }
+            note(tr("reels.needs_addon"))
+            TextButton(onClick = { startAddonInstall(context) }) { Text(tr("reels.install_addon")) }
         }
         !serviceOn -> {
-            note("Needs one more step: turn on \"AdWizz Reels Blocker\" in Accessibility settings.")
+            note(tr("reels.needs_a11y"))
             ReelsSetupGuide(
                 onOpenAccessibility = { open(context, AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS) },
                 onOpenAddonInfo = { runCatching { context.startActivity(FocusAddon.appInfoIntent()) } },

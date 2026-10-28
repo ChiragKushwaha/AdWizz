@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -17,17 +18,15 @@ import kotlin.reflect.KMutableProperty1
 internal fun ProtectionSection() {
     val context = LocalContext.current
     val settings = remember { Settings(context) }
-    SectionTitle("Protection")
-    SettingSwitch(settings, Settings::catchHardcodedDns, "Block DNS bypass",
-        "Catches apps that hard-code Google/Cloudflare/etc. DNS or use DNS-over-HTTPS to them.") { restartVpnIfRunning(context) }
-    SettingSwitch(settings, Settings::blockTrackers, "Block trackers & analytics scripts",
-        "Analytics, tracking pixels, fingerprinting scripts, disguised first-party trackers " +
-            "and phone-maker telemetry (Samsung, Xiaomi, TikTok…).") { reload(context) }
-    SettingSwitch(settings, Settings::blockGenerated, "Block gibberish ad domains",
-        "Catches brand-new ad domains like pgjlctmswgnwf.com before any list has them. " +
-            "If a site breaks, tap it in Recent activity on Home to allow it.") { reload(context) }
-    SettingSwitch(settings, Settings::blockMalicious, "Block malicious & crypto-mining scripts",
-        "Phishing and scam sites, and scripts that mine crypto-currency in your browser.") { reload(context) }
+    SectionTitle(tr("settings.protection"))
+    SettingSwitch(settings, Settings::catchHardcodedDns, tr("settings.bypass"),
+        tr("settings.bypass_desc")) { restartVpnIfRunning(context) }
+    SettingSwitch(settings, Settings::blockTrackers, tr("settings.trackers"),
+        tr("settings.trackers_desc")) { reload(context) }
+    SettingSwitch(settings, Settings::blockGenerated, tr("settings.generated"),
+        tr("settings.generated_desc")) { reload(context) }
+    SettingSwitch(settings, Settings::blockMalicious, tr("settings.malicious"),
+        tr("settings.malicious_desc")) { reload(context) }
 }
 
 /** A [SwitchRow] bound to one boolean setting; [onChanged] runs after it's saved. */
@@ -55,15 +54,14 @@ internal fun ExcludedAppsSection() {
     var excluded by remember { mutableStateOf(settings.excludedApps) }
     var picking by rememberSaveable { mutableStateOf(false) }
 
-    SectionTitle("Excluded apps (VPN hidden from them)")
+    SectionTitle(tr("settings.excluded"))
     Text(
-        "Some apps (banking, streaming, games) refuse to work when a VPN is on. Excluded apps " +
-            "skip AdWizz completely: they won't see the VPN, but their ads aren't blocked either.",
+        tr("settings.excluded_desc"),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     OutlinedButton(onClick = { picking = true }, modifier = Modifier.padding(top = 8.dp)) {
-        Text(if (excluded.isEmpty()) "Choose apps" else "${excluded.size} app(s) excluded — edit")
+        Text(if (excluded.isEmpty()) tr("settings.choose_apps") else tr("settings.apps_excluded", "count" to excluded.size))
     }
     if (picking) {
         AppPickerDialog(initial = excluded, onDismiss = { picking = false }, onSave = { chosen ->

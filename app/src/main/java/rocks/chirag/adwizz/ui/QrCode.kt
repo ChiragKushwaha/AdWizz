@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -36,7 +37,7 @@ fun QrCode(text: String, modifier: Modifier = Modifier) {
     val matrix = remember(text) { qrMatrix(text) }
     Box(
         modifier.clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)
-            .semantics { contentDescription = "QR code for $text" }
+            .semantics { contentDescription = tr("devices.a11y_qr", "link" to text) }
             .testTag("qr")
     ) {
         Canvas(Modifier.fillMaxSize()) {
@@ -58,7 +59,7 @@ internal fun PlatformCard(title: String, body: String, copyValue: String? = null
             if (copyValue != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(copyValue, fontFamily = FontFamily.Monospace, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { onCopy(copyValue) }) { Text("Copy") }
+                    TextButton(onClick = { onCopy(copyValue) }) { Text(tr("common.copy")) }
                 }
             }
         }

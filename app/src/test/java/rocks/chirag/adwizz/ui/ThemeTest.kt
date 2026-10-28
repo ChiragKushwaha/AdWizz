@@ -20,7 +20,7 @@ class ThemeTest : UiTestBase() {
         assertEquals(ThemeMode.LIGHT, ThemeMode.from("light"))
         assertEquals(ThemeMode.SYSTEM, ThemeMode.from("system"))
         assertEquals(ThemeMode.SYSTEM, ThemeMode.from("garbage"))
-        assertEquals(listOf("System", "Light", "Dark"), ThemeMode.entries.map { it.label })
+        assertEquals(listOf("System", "Light", "Dark"), ThemeMode.entries.map { rocks.chirag.adwizz.tr(it.label) })
     }
 
     @Test fun topBarToggleFlipsAndPersists() {

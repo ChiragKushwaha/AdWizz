@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.data
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -48,13 +49,13 @@ object Updater {
             val dir = File(context.applicationContext.cacheDir, "updates").apply { deleteRecursively(); mkdirs() }
             val apk = File(dir, "AdWizz-${info.versionCode}.apk")
             UpdateDownload.file(info.apkUrl, apk, info.sizeBytes) { _state.value = UpdateState.Downloading(info, it) }
-            check(UpdateDownload.sha256(apk) == info.sha256) { "Download was corrupted (checksum mismatch)" }
-            check(ApkInstaller.isOurs(context, apk)) { "Update isn't signed by AdWizz" }
+            check(UpdateDownload.sha256(apk) == info.sha256) { tr("download.corrupt") }
+            check(ApkInstaller.isOurs(context, apk)) { tr("update.unsigned") }
             _state.value = UpdateState.Ready(info, apk)
             apk
         } catch (e: Exception) {
             Log.w(TAG, "Update download failed", e)
-            _state.value = UpdateState.Failed(info, e.message ?: "Download failed")
+            _state.value = UpdateState.Failed(info, e.message ?: tr("download.failed"))
             null
         }
     }
@@ -69,7 +70,7 @@ object Updater {
         } catch (e: Exception) {
             Log.w(TAG, "Update install failed", e)
             Telemetry.nonFatal(e)
-            _state.value = UpdateState.Failed(info, e.message ?: "Install failed")
+            _state.value = UpdateState.Failed(info, e.message ?: tr("download.install_failed"))
         }
     }
 

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -19,10 +20,10 @@ import rocks.chirag.adwizz.data.*
 internal fun StatsRow(stats: Stats) {
     val pct = if (stats.queries > 0) (stats.blocked * 100 / stats.queries) else 0
     Row(Modifier.fillMaxWidth().padding(start = 6.dp, end = 2.dp, top = 4.dp)) {
-        StatCard("Blocked", stats.blocked.toString(), Modifier.weight(1f))
-        StatCard("Queries", stats.queries.toString(), Modifier.weight(1f))
-        StatCard("Ratio", "$pct%", Modifier.weight(1f))
-        StatCard("List", compact(stats.listSize), Modifier.weight(1f))
+        StatCard(tr("home.stat_blocked"), stats.blocked.toString(), Modifier.weight(1f))
+        StatCard(tr("home.stat_queries"), stats.queries.toString(), Modifier.weight(1f))
+        StatCard(tr("home.stat_ratio"), "$pct%", Modifier.weight(1f))
+        StatCard(tr("home.stat_list"), compact(stats.listSize), Modifier.weight(1f))
     }
 }
 

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -29,9 +30,9 @@ internal fun BlocklistSection() {
     var sources by remember { mutableStateOf(settings.enabledSources) }
     var lastUpdate by remember { mutableLongStateOf(settings.lastListUpdate) }
 
-    SectionTitle("Blocklists")
+    SectionTitle(tr("lists.title"))
     Sources.ADS.forEach { src ->
-        SwitchRow(src.name, src.description, src.id in sources) { on ->
+        SwitchRow(src.name, tr("src.${src.id}"), src.id in sources) { on ->
             sources = if (on) sources + src.id else sources - src.id
             settings.enabledSources = sources
             reload(context)   // the running VPN also fetches any list not on disk yet
@@ -51,11 +52,11 @@ internal fun BlocklistSection() {
             if (updating) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
             else Icon(Icons.Default.Refresh, null, Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("Update lists")
+            Text(tr("lists.update"))
         }
         Spacer(Modifier.width(12.dp))
         Text(
-            if (lastUpdate == 0L) "Never updated" else "Updated ${DateUtils.getRelativeTimeSpanString(lastUpdate)}",
+            if (lastUpdate == 0L) tr("lists.never") else tr("lists.updated_ago", "when" to DateUtils.getRelativeTimeSpanString(lastUpdate)),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -65,14 +66,14 @@ internal fun BlocklistSection() {
 @Composable
 internal fun AllowlistSection() {
     val settings = rememberSettings()
-    DomainListSection("Allowlist (never blocked)", "example.com",
+    DomainListSection(tr("lists.allowlist"), "example.com",
         read = { settings.allowlist }, write = { settings.allowlist = it })
 }
 
 @Composable
 internal fun CustomBlocklistSection() {
     val settings = rememberSettings()
-    DomainListSection("My blocked domains", "ads.example.com",
+    DomainListSection(tr("lists.my_blocked"), "ads.example.com",
         read = { settings.customBlocklist }, write = { settings.customBlocklist = it })
 }
 

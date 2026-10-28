@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import rocks.chirag.adwizz.share.ShareServer
 import android.content.Intent
@@ -55,17 +56,17 @@ internal fun openAppDetails(context: Context) {
 /** Phone makers that aggressively kill background apps each hide the switch in a different place. */
 internal fun oemHint(): String = when (Build.MANUFACTURER.lowercase()) {
     "xiaomi", "redmi", "poco" ->
-        "On Xiaomi/Redmi/POCO: App settings → Autostart ON, and Battery saver → No restrictions. Also lock AdWizz in Recents."
+        tr("tips.xiaomi")
     "oppo", "realme", "oneplus" ->
-        "On Oppo/Realme/OnePlus: App settings → Battery → Allow background activity, and allow Auto launch."
+        tr("tips.oppo")
     "vivo", "iqoo" ->
-        "On Vivo/iQOO: Settings → Battery → Background power consumption → allow AdWizz, and enable Autostart."
+        tr("tips.vivo")
     "samsung" ->
-        "On Samsung: App settings → Battery → Unrestricted, and keep AdWizz out of 'Sleeping apps'."
+        tr("tips.samsung")
     "huawei", "honor" ->
-        "On Huawei/Honor: Battery → App launch → AdWizz → Manage manually, all switches on."
+        tr("tips.huawei")
     else ->
-        "Set AdWizz's battery usage to Unrestricted so the system doesn't stop it in the background."
+        tr("tips.other")
 }
 
 /** True when Private DNS is set to a specific hostname, which makes Android bypass any VPN's DNS. */

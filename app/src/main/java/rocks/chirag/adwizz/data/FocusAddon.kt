@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.data
 
+import rocks.chirag.adwizz.tr
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -64,19 +65,19 @@ object FocusAddon {
         try {
             _state.value = AddonState.Downloading(0f)
             val info = UpdateManifest.parseAddon(UpdateDownload.text(UpdateManifest.URL, 64 * 1024))
-                ?: error("The Reels blocker add-on isn't available yet. Please try again later.")
+                ?: error(tr("addon.unavailable"))
             if ((installedVersion(app) ?: 0) >= info.versionCode) { onInstalled(); return }
             val dir = File(app.cacheDir, "addon").apply { deleteRecursively(); mkdirs() }
             val apk = File(dir, "AdWizzFocus-${info.versionCode}.apk")
             UpdateDownload.file(info.apkUrl, apk, info.sizeBytes) { _state.value = AddonState.Downloading(it) }
-            check(UpdateDownload.sha256(apk) == info.sha256) { "Download was corrupted (checksum mismatch)" }
-            check(ApkInstaller.isOurs(app, apk, PACKAGE)) { "The add-on isn't signed by AdWizz" }
+            check(UpdateDownload.sha256(apk) == info.sha256) { tr("download.corrupt") }
+            check(ApkInstaller.isOurs(app, apk, PACKAGE)) { tr("addon.unsigned") }
             _state.value = AddonState.Installing
             Telemetry.event(app, "focus_addon_install")
             ApkInstaller.install(app, apk, PACKAGE)
         } catch (e: Exception) {
             Log.w(TAG, "Add-on install failed", e)
-            _state.value = AddonState.Failed(e.message ?: "Install failed", blocked = false)
+            _state.value = AddonState.Failed(e.message ?: tr("download.install_failed"), blocked = false)
         }
     }
 

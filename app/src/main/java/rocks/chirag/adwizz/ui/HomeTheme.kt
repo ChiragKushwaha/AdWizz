@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -37,7 +38,7 @@ internal fun ThemeQuickToggle() {
                 interactionSource = remember { MutableInteractionSource() }, indication = null,
                 role = androidx.compose.ui.semantics.Role.Button,
             ) { switchTheme(reveal, if (dark) ThemeMode.LIGHT else ThemeMode.DARK, center) }
-            .semantics { contentDescription = if (dark) "Switch to light mode" else "Switch to dark mode" },
+            .semantics { contentDescription = if (dark) tr("home.a11y_light") else tr("home.a11y_dark") },
         contentAlignment = Alignment.Center
     ) {
         // Sun sets / moon rises: the new body scales and fades in as the old one goes.

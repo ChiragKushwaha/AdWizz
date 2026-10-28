@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -24,7 +25,7 @@ import rocks.chirag.adwizz.data.Settings
 internal fun AppearanceSection() {
     val themeMode by ThemeState.mode.collectAsStateWithLifecycle()
     val reveal = LocalThemeReveal.current
-    SectionTitle("Appearance")
+    SectionTitle(tr("settings.appearance"))
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
         ThemeMode.entries.forEachIndexed { i, mode ->
             var center by remember { mutableStateOf(Offset.Zero) }
@@ -34,7 +35,7 @@ internal fun AppearanceSection() {
                 modifier = Modifier.testTag("theme_${mode.key}")
                     .onGloballyPositioned { center = it.boundsInRoot().center },
                 shape = SegmentedButtonDefaults.itemShape(i, ThemeMode.entries.size),
-                label = { Text(mode.label) }
+                label = { Text(tr(mode.label)) }
             )
         }
     }
@@ -55,7 +56,7 @@ internal fun DnsSection() {
         reload(context)
     }
 
-    SectionTitle("Upstream DNS")
+    SectionTitle(tr("settings.upstream_dns"))
     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         DnsPresets.ALL.forEach { p ->
             FilterChip(
@@ -66,13 +67,13 @@ internal fun DnsSection() {
         }
     }
     Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(dns1, { dns1 = it.trim() }, label = { Text("Primary") }, singleLine = true, modifier = Modifier.weight(1f))
-        OutlinedTextField(dns2, { dns2 = it.trim() }, label = { Text("Secondary") }, singleLine = true, modifier = Modifier.weight(1f))
+        OutlinedTextField(dns1, { dns1 = it.trim() }, label = { Text(tr("settings.dns_primary")) }, singleLine = true, modifier = Modifier.weight(1f))
+        OutlinedTextField(dns2, { dns2 = it.trim() }, label = { Text(tr("settings.dns_secondary")) }, singleLine = true, modifier = Modifier.weight(1f))
     }
     if (dns1 != saved.first || dns2 != saved.second) {
         TextButton(onClick = {
             if (isIpv4(dns1) && (dns2.isEmpty() || isIpv4(dns2))) save(dns1, dns2)
-            else toast(context, "Enter IPv4 addresses, e.g. 1.1.1.1")
-        }) { Text("Save DNS servers") }
+            else toast(context, tr("settings.dns_invalid"))
+        }) { Text(tr("settings.dns_save")) }
     }
 }

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -23,7 +24,7 @@ import rocks.chirag.adwizz.data.*
 
 /** The three screens in the bottom bar. Settings and Devices get the whole screen so they're easy to read. */
 private enum class Page(val label: String, val tag: String) {
-    HOME("Home", "tab_home"), SETTINGS("Settings", "tab_settings"), DEVICES("Devices", "tab_devices")
+    HOME("nav.home", "tab_home"), SETTINGS("nav.settings", "tab_settings"), DEVICES("nav.devices", "tab_devices")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +45,7 @@ fun AppScreen(onToggle: () -> Unit) {
                 TopAppBar(
                     title = {
                         Text(
-                            if (screen == Page.HOME) "AdWizz" else screen.label,
+                            if (screen == Page.HOME) "AdWizz" else tr(screen.label),
                             style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary, letterSpacing = 1.sp
                         )
@@ -68,7 +69,7 @@ fun AppScreen(onToggle: () -> Unit) {
                                     }, null
                                 )
                             },
-                            label = { Text(s.label) },
+                            label = { Text(tr(s.label)) },
                             modifier = Modifier.testTag(s.tag),
                         )
                     }
@@ -113,7 +114,7 @@ private fun HomeScreen(status: Status, error: String?, stats: Stats, onToggle: (
             Row(Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Filled.List, null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(8.dp))
-                Text("Recent activity", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(tr("home.recent"), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             }
             ActivityTab()
         }

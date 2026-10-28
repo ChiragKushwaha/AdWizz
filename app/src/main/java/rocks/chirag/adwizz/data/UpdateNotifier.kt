@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.data
 
+import rocks.chirag.adwizz.tr
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -41,7 +42,7 @@ object UpdateNotifier {
         if (!allowed || !nm.areNotificationsEnabled()) return false
         if (Build.VERSION.SDK_INT >= 26) {
             context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
-                NotificationChannel(CHANNEL, "App updates", NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationChannel(CHANNEL, tr("notif.channel_updates"), NotificationManager.IMPORTANCE_DEFAULT)
             )
         }
         val open = PendingIntent.getActivity(
@@ -51,9 +52,9 @@ object UpdateNotifier {
         )
         val n = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_shield)
-            .setContentTitle("AdWizz v${info.versionName} is ready")
-            .setContentText(info.notes.ifBlank { "Tap to update — takes a few seconds." })
-            .setStyle(NotificationCompat.BigTextStyle().bigText(info.notes.ifBlank { "Tap to update." }))
+            .setContentTitle(tr("notif.update_title", "version" to info.versionName))
+            .setContentText(info.notes.ifBlank { tr("notif.update_text") })
+            .setStyle(NotificationCompat.BigTextStyle().bigText(info.notes.ifBlank { tr("notif.update_short") }))
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()

@@ -8,7 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class ThemeMode(val key: String, val label: String) {
-    SYSTEM("system", "System"), LIGHT("light", "Light"), DARK("dark", "Dark");
+    SYSTEM("system", "theme.system"), LIGHT("light", "theme.light"), DARK("dark", "theme.dark");
 
     companion object {
         fun from(key: String) = entries.firstOrNull { it.key == key } ?: SYSTEM

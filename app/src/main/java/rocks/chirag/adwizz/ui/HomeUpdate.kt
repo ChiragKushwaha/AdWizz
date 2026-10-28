@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings as AndroidSettings
@@ -44,7 +45,7 @@ internal fun UpdatePanel() {
         color = MaterialTheme.colorScheme.primaryContainer,
     ) {
         Column(Modifier.padding(12.dp)) {
-            Text("New spell book: v${info.versionName}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(tr("update.banner", "version" to info.versionName), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
             if (info.notes.isNotBlank()) {
                 Text(info.notes, style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -54,7 +55,7 @@ internal fun UpdatePanel() {
                 is UpdateState.Downloading -> LinearProgressIndicator(
                     progress = { st.progress }, modifier = Modifier.fillMaxWidth().height(8.dp), strokeCap = StrokeCap.Butt,
                 )
-                is UpdateState.Installing -> Text("Installing… AdWizz restarts by itself", style = MaterialTheme.typography.bodySmall)
+                is UpdateState.Installing -> Text(tr("update.installing"), style = MaterialTheme.typography.bodySmall)
                 else -> UpdateActions(st)
             }
         }
@@ -68,9 +69,9 @@ private fun UpdateActions(state: UpdateState) {
         if (state is UpdateState.Failed) {
             Text(state.message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
         } else Spacer(Modifier.weight(1f))
-        TextButton(onClick = { Updater.dismiss() }) { Text("Later") }
+        TextButton(onClick = { Updater.dismiss() }) { Text(tr("update.later")) }
         PixelButton(
-            when (state) { is UpdateState.Failed -> "Retry"; is UpdateState.Ready -> "Install"; else -> "Update" },
+            when (state) { is UpdateState.Failed -> tr("update.retry"); is UpdateState.Ready -> tr("common.install"); else -> tr("update.update") },
             onClick = { startUpdate(context) },
             modifier = Modifier.testTag("updateButton"),
         )

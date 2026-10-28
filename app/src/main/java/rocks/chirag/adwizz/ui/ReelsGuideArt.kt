@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -63,31 +64,31 @@ private fun MockRow(label: String, on: Boolean?, highlighted: Boolean = false, d
 
 /** Step 1: Accessibility → the add-on → Android's "Restricted setting" message. */
 @Composable
-internal fun MockRestricted() = MockScreen("Accessibility", "Accessibility settings showing the Restricted setting message") {
+internal fun MockRestricted() = MockScreen(tr("guide.mock_a11y"), tr("guide.a11y_mock1")) {
     MockRow("AdWizz Reels Blocker", on = false, dim = true)
     Column(
         Modifier.fillMaxWidth().padding(top = 4.dp)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(8.dp)).padding(8.dp)
     ) {
-        Text("Restricted setting", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-        Text("For your security, this setting is currently unavailable.", fontSize = 10.sp)
+        Text(tr("guide.mock_restricted"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+        Text(tr("guide.mock_restricted_body"), fontSize = 10.sp)
         Text("OK", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.align(Alignment.End).tapMark().padding(horizontal = 8.dp, vertical = 2.dp))
     }
 }
 
 /** Step 2: the add-on's App info → ⋮ → "Allow restricted settings". */
 @Composable
-internal fun MockAllowRestricted() = MockScreen("App info", "App info for AdWizz Reels Blocker: tap the three dots, then Allow restricted settings", menu = true) {
+internal fun MockAllowRestricted() = MockScreen(tr("guide.mock_info"), tr("guide.a11y_mock2"), menu = true) {
     Row {
         Text("AdWizz Reels Blocker", fontSize = 11.sp, modifier = Modifier.weight(1f))
         Column(
             Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(6.dp)).padding(2.dp)
-        ) { MockRow("Allow restricted settings", on = null, highlighted = true) }
+        ) { MockRow(tr("guide.mock_allow"), on = null, highlighted = true) }
     }
 }
 
 /** Step 3: Accessibility → Installed apps → the add-on, switched on. */
 @Composable
-internal fun MockTurnOn() = MockScreen("Installed apps", "Accessibility, Installed apps: turn on AdWizz Reels Blocker") {
+internal fun MockTurnOn() = MockScreen(tr("guide.mock_installed"), tr("guide.a11y_mock3")) {
     MockRow("AdWizz Reels Blocker", on = true, highlighted = true)
 }

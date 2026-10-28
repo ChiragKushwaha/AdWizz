@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.data
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import android.util.Log
 import rocks.chirag.adwizz.BuildConfig
@@ -90,7 +91,7 @@ class BlocklistRepository(context: Context) {
             }
             if (ok > 0) settings.lastListUpdate = System.currentTimeMillis()
             Telemetry.event(context, "lists_updated", "ok" to ok, "failed" to failed.size)
-            return if (failed.isEmpty()) "Updated $ok list(s)" else "Updated $ok, failed: ${failed.joinToString()}"
+            return if (failed.isEmpty()) tr("lists.result_ok", "count" to ok) else tr("lists.result_failed", "count" to ok, "lists" to failed.joinToString())
         } finally {
             VpnState.setUpdating(false)
         }

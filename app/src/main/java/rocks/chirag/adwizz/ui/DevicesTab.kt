@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -105,12 +106,10 @@ private fun serveOn(server: ShareServer, ip: String?): String? {
 
 @Composable
 private fun DevicesIntro() {
-    Text("Protect other devices", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Text(tr("devices.title"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(4.dp))
     Text(
-        "Devices on your hotspot don't go through AdWizz — Android never sends hotspot traffic " +
-            "through a VPN. Scan this code on the other device (it must be on this phone's hotspot or " +
-            "the same Wi-Fi) to set up ad blocking there in a few taps.",
+        tr("devices.intro"),
         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
     )
     Spacer(Modifier.height(16.dp))
@@ -122,6 +121,6 @@ private fun ShareLink(url: String) {
     QrCode(url, Modifier.size(240.dp))
     Spacer(Modifier.height(10.dp))
     Text(url, fontFamily = FontFamily.Monospace, fontSize = 14.sp, modifier = Modifier.testTag("shareUrl"))
-    TextButton(onClick = { clipboard.setText(AnnotatedString(url)) }) { Text("Copy link") }
+    TextButton(onClick = { clipboard.setText(AnnotatedString(url)) }) { Text(tr("devices.copy_link")) }
 }
 

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.os.Build
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -25,24 +26,22 @@ internal fun ReelsSetupGuide(
     restricted: Boolean = needsRestrictedSettingsSteps(),
 ) {
     Column(Modifier.fillMaxWidth().testTag("reelsGuide"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Turn on the Reels Blocker", fontWeight = FontWeight.SemiBold)
+        Text(tr("guide.title"), fontWeight = FontWeight.SemiBold)
         if (restricted) {
             GuideStep(
-                1, "Open Accessibility and tap \"AdWizz Reels Blocker\". Android says \"Restricted setting\": tap OK. " +
-                    "(On Samsung it's under Installed apps.)",
-                "Open Accessibility", onOpenAccessibility,
+                1, tr("guide.step1"),
+                tr("guide.open_a11y"), onOpenAccessibility,
             ) { MockRestricted() }
             GuideStep(
-                2, "Open the add-on's App info, tap ⋮ at the top right, then \"Allow restricted settings\" " +
-                    "and confirm with your PIN or fingerprint.",
-                "Open add-on App info", onOpenAddonInfo,
+                2, tr("guide.step2"),
+                tr("guide.open_info"), onOpenAddonInfo,
             ) { MockAllowRestricted() }
             GuideStep(
-                3, "Go back to Accessibility and turn on \"AdWizz Reels Blocker\".",
-                "Open Accessibility", onOpenAccessibility,
+                3, tr("guide.step3"),
+                tr("guide.open_a11y"), onOpenAccessibility,
             ) { MockTurnOn() }
         } else {
-            GuideStep(1, "Open Accessibility and turn on \"AdWizz Reels Blocker\".", "Open Accessibility", onOpenAccessibility) { MockTurnOn() }
+            GuideStep(1, tr("guide.step_simple"), tr("guide.open_a11y"), onOpenAccessibility) { MockTurnOn() }
         }
     }
 }

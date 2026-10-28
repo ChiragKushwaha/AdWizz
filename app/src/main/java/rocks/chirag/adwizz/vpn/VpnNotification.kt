@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.vpn
 
+import rocks.chirag.adwizz.tr
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -22,7 +23,7 @@ internal object VpnNotification {
     fun showForeground(service: Service, stopAction: String) {
         if (Build.VERSION.SDK_INT >= 26) {
             service.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Protection status", NotificationManager.IMPORTANCE_LOW).apply { setShowBadge(false) }
+                NotificationChannel(CHANNEL_ID, tr("notif.channel_vpn"), NotificationManager.IMPORTANCE_LOW).apply { setShowBadge(false) }
             )
         }
         val stop = PendingIntent.getService(
@@ -31,10 +32,10 @@ internal object VpnNotification {
         )
         val notification: Notification = NotificationCompat.Builder(service, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_shield)
-            .setContentTitle("AdWizz is blocking ads")
-            .setContentText("Filtering DNS for every app on this device")
+            .setContentTitle(tr("notif.vpn_title"))
+            .setContentText(tr("notif.vpn_text"))
             .setContentIntent(openApp(service))
-            .addAction(0, "Turn off", stop)
+            .addAction(0, tr("notif.turn_off"), stop)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()

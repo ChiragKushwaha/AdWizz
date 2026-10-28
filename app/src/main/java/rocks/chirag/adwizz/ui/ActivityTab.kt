@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import android.text.format.DateUtils
 import androidx.compose.animation.*
@@ -37,7 +38,7 @@ internal fun ActivityTab() {
     if (log.isEmpty()) {
         Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
             Text(
-                "DNS requests from your apps will show up here once protection is on.",
+                tr("activity.empty"),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -56,7 +57,7 @@ internal fun ActivityTab() {
                 },
                 trailingContent = {
                     Text(
-                        if (entry.blocked) "BLOCKED" else "allowed",
+                        if (entry.blocked) tr("activity.blocked") else tr("activity.allowed"),
                         color = if (entry.blocked) Danger else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 11.sp, fontWeight = if (entry.blocked) FontWeight.Bold else FontWeight.Normal
                     )
@@ -71,8 +72,8 @@ internal fun ActivityTab() {
             title = { Text(entry.domain, fontFamily = FontFamily.Monospace, fontSize = 15.sp) },
             text = {
                 Text(
-                    if (entry.blocked) "This domain is blocked. Allow it if an app or site is broken."
-                    else "This domain is allowed. Block it if it serves ads or tracking."
+                    if (entry.blocked) tr("activity.blocked_hint")
+                    else tr("activity.allowed_hint")
                 )
             },
             confirmButton = {
@@ -87,9 +88,9 @@ internal fun ActivityTab() {
                     }
                     reload(context)
                     selected = null
-                }) { Text(if (entry.blocked) "Allow" else "Block") }
+                }) { Text(if (entry.blocked) tr("common.allow") else tr("common.block")) }
             },
-            dismissButton = { TextButton(onClick = { selected = null }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { selected = null }) { Text(tr("common.cancel")) } }
         )
     }
 }

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.layout.*
@@ -26,11 +27,11 @@ internal fun UpdatesSection() {
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
     var result by rememberSaveable { mutableStateOf<String?>(null) }
-    SectionTitle("Updates")
+    SectionTitle(tr("settings.updates"))
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text("AdWizz v${BuildConfig.VERSION_NAME}")
-            Text(result ?: "Updates come from GitHub Releases", style = MaterialTheme.typography.bodySmall,
+            Text(result ?: tr("settings.updates_from"), style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         OutlinedButton(enabled = !checking, onClick = {
@@ -38,11 +39,11 @@ internal fun UpdatesSection() {
             checking = true
             scope.launch {
                 val found = withContext(Dispatchers.IO) { Updater.check(app, force = true) }
-                result = if (found != null) "v${found.versionName} is available — see the top of the screen"
-                else "You're on the latest version"
+                result = if (found != null) tr("settings.update_found", "version" to found.versionName)
+                else tr("settings.up_to_date")
                 checking = false
             }
-        }) { Text(if (checking) "Checking…" else "Check for updates") }
+        }) { Text(if (checking) tr("settings.checking") else tr("settings.check")) }
     }
 }
 
@@ -55,31 +56,31 @@ internal fun KeepAliveSection() {
         unrestricted = isBatteryUnrestricted(context)
         onPauseOrDispose { }
     }
-    SectionTitle("Make it stick")
+    SectionTitle(tr("settings.stick"))
     PixelPanel(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.padding(16.dp)) {
-            Text("Always-on VPN", fontWeight = FontWeight.SemiBold)
-            Text("Turn on Always-on for AdWizz so protection survives reboots and the system restarts it if it's killed.",
+            Text(tr("settings.always_on"), fontWeight = FontWeight.SemiBold)
+            Text(tr("settings.always_on_desc"),
                 style = MaterialTheme.typography.bodySmall)
             TextButton(onClick = { open(context, AndroidSettings.ACTION_VPN_SETTINGS) }) { Text("Open VPN settings") }
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Text(
-                if (unrestricted) "Battery: unrestricted ✓" else "Battery: optimised (may be stopped)",
+                if (unrestricted) tr("settings.battery_ok") else tr("settings.battery_opt"),
                 fontWeight = FontWeight.SemiBold,
                 color = if (unrestricted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
             )
             Text(oemHint(), style = MaterialTheme.typography.bodySmall)
             Row {
-                if (!unrestricted) TextButton(onClick = { requestBatteryExemption(context) }) { Text("Allow background") }
-                TextButton(onClick = { openAppDetails(context) }) { Text("App settings") }
+                if (!unrestricted) TextButton(onClick = { requestBatteryExemption(context) }) { Text(tr("settings.allow_background")) }
+                TextButton(onClick = { openAppDetails(context) }) { Text(tr("settings.app_settings")) }
             }
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Warning, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Private DNS must be Off or Automatic", fontWeight = FontWeight.SemiBold)
+                Text(tr("settings.pdns_title"), fontWeight = FontWeight.SemiBold)
             }
-            Text("If Private DNS is set to a specific hostname (e.g. dns.google), Android sends DNS over TLS directly and skips AdWizz.",
+            Text(tr("settings.pdns_desc"),
                 style = MaterialTheme.typography.bodySmall)
             TextButton(onClick = { open(context, AndroidSettings.ACTION_WIRELESS_SETTINGS) }) { Text("Open network settings") }
         }

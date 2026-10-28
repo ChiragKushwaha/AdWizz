@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -65,8 +66,8 @@ fun WizardStage(status: Status, modifier: Modifier = Modifier) {
             .onGloballyPositioned { stageTop = it.boundsInRoot().top }
             .testTag("wizardStage")
             .semantics {
-                contentDescription = if (protectedNow) "Wizard has cleared the ads from the screen"
-                else "Screen full of ads"
+                contentDescription = if (protectedNow) tr("home.a11y_cleared")
+                else tr("home.a11y_ads")
             }
     ) {
         val scene = StageScene(StageLayout(size.width, size.height), clock.value, spell.value, reversing, stageTop, art)

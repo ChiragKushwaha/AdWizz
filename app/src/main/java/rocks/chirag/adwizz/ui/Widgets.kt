@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
@@ -53,8 +54,8 @@ internal fun DomainAdder(hint: String, onAdd: (String) -> Unit) {
             val d = text.removePrefix("https://").removePrefix("http://").substringBefore('/')
             if (d.contains('.') && d.all { it.isLetterOrDigit() || it == '.' || it == '-' || it == '_' }) {
                 onAdd(d); text = ""
-            } else toast(context, "Enter a domain like $hint")
-        }) { Icon(Icons.Default.Add, "Add") }
+            } else toast(context, tr("lists.enter_domain", "example" to hint))
+        }) { Icon(Icons.Default.Add, tr("common.add")) }
     }
 }
 
@@ -62,6 +63,6 @@ internal fun DomainAdder(hint: String, onAdd: (String) -> Unit) {
 internal fun DomainRow(domain: String, onRemove: () -> Unit) {
     Row(Modifier.fillMaxWidth().padding(start = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(domain, fontFamily = FontFamily.Monospace, fontSize = 13.sp, modifier = Modifier.weight(1f))
-        IconButton(onClick = onRemove) { Icon(Icons.Default.Delete, "Remove") }
+        IconButton(onClick = onRemove) { Icon(Icons.Default.Delete, tr("common.remove")) }
     }
 }

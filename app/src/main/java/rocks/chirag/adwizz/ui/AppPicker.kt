@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import androidx.compose.runtime.saveable.rememberSaveable
 import android.content.Context
 import android.content.Intent
@@ -54,10 +55,10 @@ internal fun AppPickerDialog(initial: Set<String>, onDismiss: () -> Unit, onSave
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Exclude apps") },
+        title = { Text(tr("picker.title")) },
         text = { AppPickerContent(apps, chosen, onChange = { chosen = it }) },
-        confirmButton = { TextButton(onClick = { onSave(chosen) }) { Text("Save") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        confirmButton = { TextButton(onClick = { onSave(chosen) }) { Text(tr("common.save")) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(tr("common.cancel")) } }
     )
 }
 
@@ -67,20 +68,20 @@ fun AppPickerContent(apps: List<AppEntry>?, chosen: Set<String>, onChange: (Set<
     var query by rememberSaveable { mutableStateOf("") }
     Column {
         OutlinedTextField(
-            query, { query = it }, placeholder = { Text("Search apps") },
+            query, { query = it }, placeholder = { Text(tr("picker.search")) },
             singleLine = true, modifier = Modifier.fillMaxWidth().testTag("appSearch")
         )
         Spacer(Modifier.height(8.dp))
         if (apps == null) {
             Box(Modifier.fillMaxWidth().height(120.dp), contentAlignment = Alignment.Center) {
-                Text("Loading apps…", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(tr("picker.loading"), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             return@Column
         }
         val shown = remember(apps, query, chosen) { filterApps(apps, query, chosen) }
         if (shown.isEmpty()) {
             Text(
-                if (apps.isEmpty()) "No apps found" else "No apps match \"$query\"",
+                if (apps.isEmpty()) tr("picker.none") else tr("picker.no_match", "query" to query),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 24.dp)
             )

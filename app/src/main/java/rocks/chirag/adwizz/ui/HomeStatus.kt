@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.provider.Settings as AndroidSettings
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -28,10 +29,10 @@ internal fun StatusPanel(status: Status, onToggle: () -> Unit) {
                 AnimatedContent(status, label = "statusText", transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(120)) }) { st ->
                     Text(
                         when (st) {
-                            Status.RUNNING -> "Protected"
-                            Status.STARTING -> "Starting…"
-                            Status.ERROR -> "Couldn't start"
-                            Status.STOPPED -> "Not protected"
+                            Status.RUNNING -> tr("home.protected")
+                            Status.STARTING -> tr("home.starting")
+                            Status.ERROR -> tr("home.error")
+                            Status.STOPPED -> tr("home.not_protected")
                         },
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
                         color = if (st == Status.ERROR) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
@@ -39,7 +40,7 @@ internal fun StatusPanel(status: Status, onToggle: () -> Unit) {
                     )
                 }
                 Text(
-                    if (on) "Ads and trackers are blocked in every app" else "Tap to block ads across your phone",
+                    if (on) tr("home.on_hint") else tr("home.off_hint"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -47,13 +48,13 @@ internal fun StatusPanel(status: Status, onToggle: () -> Unit) {
             Spacer(Modifier.width(8.dp))
             PixelButton(
                 text = when (status) {
-                    Status.RUNNING -> "Stop"
-                    Status.STARTING -> "Casting…"
-                    else -> "Cast spell"
+                    Status.RUNNING -> tr("home.stop")
+                    Status.STARTING -> tr("home.casting")
+                    else -> tr("home.cast")
                 },
                 onClick = onToggle,
                 modifier = Modifier.testTag("power")
-                    .semantics { contentDescription = if (on) "Turn protection off" else "Turn protection on" },
+                    .semantics { contentDescription = if (on) tr("home.a11y_off") else tr("home.a11y_on") },
             )
         }
     }
@@ -73,11 +74,11 @@ internal fun PrivateDnsWarning() {
         color = MaterialTheme.colorScheme.errorContainer
     ) {
         Column(Modifier.padding(12.dp)) {
-            Text("Private DNS is bypassing AdWizz", fontWeight = FontWeight.SemiBold,
+            Text(tr("home.pdns_title"), fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onErrorContainer)
-            Text("Set Private DNS to Off or Automatic, otherwise ads won't be blocked.",
+            Text(tr("home.pdns_body"),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
-            TextButton(onClick = { open(context, AndroidSettings.ACTION_WIRELESS_SETTINGS) }) { Text("Fix it") }
+            TextButton(onClick = { open(context, AndroidSettings.ACTION_WIRELESS_SETTINGS) }) { Text(tr("home.fix_it")) }
         }
     }
 }

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.vpn
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -62,7 +63,7 @@ class AdBlockVpnService : VpnService() {
                 maintenance = Maintenance(applicationContext, repo, ::reloadConfig).also { it.start() }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start", e); Telemetry.nonFatal(e)
-                VpnState.setStatus(Status.ERROR, e.message ?: "Failed to start VPN")
+                VpnState.setStatus(Status.ERROR, e.message ?: tr("home.vpn_failed"))
                 shutdown()
             } finally {
                 starting = false

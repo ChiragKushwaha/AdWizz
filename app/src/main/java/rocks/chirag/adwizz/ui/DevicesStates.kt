@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import rocks.chirag.adwizz.tr
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -29,9 +30,9 @@ import rocks.chirag.adwizz.share.ShareContent
 internal fun ExpiredLink(onRenew: () -> Unit) {
     PixelPanel(Modifier.fillMaxWidth().testTag("expired")) {
         Column(Modifier.padding(16.dp)) {
-            Text("This link expired", fontWeight = FontWeight.SemiBold)
-            Text("Setup links stop working after 15 minutes so nobody else can use them.", style = MaterialTheme.typography.bodySmall)
-            TextButton(onClick = onRenew) { Text("Make a new link") }
+            Text(tr("devices.expired"), fontWeight = FontWeight.SemiBold)
+            Text(tr("devices.expired_body"), style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = onRenew) { Text(tr("devices.new_link")) }
         }
     }
 }
@@ -50,14 +51,13 @@ internal fun localNetworkAllowed(context: Context) = Build.VERSION.SDK_INT < 37 
 internal fun LocalNetworkNeeded(refused: Boolean, onAllow: () -> Unit) {
     PixelPanel(Modifier.fillMaxWidth().testTag("localNetwork"), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.padding(16.dp)) {
-            Text("Allow AdWizz to reach nearby devices", fontWeight = FontWeight.SemiBold)
+            Text(tr("devices.lan_title"), fontWeight = FontWeight.SemiBold)
             Text(
-                "Android needs your OK before other devices on your hotspot or Wi-Fi can open the setup " +
-                    "page. AdWizz only uses it for this page." +
-                    if (refused) "\n\nIn App info, tap Permissions → Nearby devices → Allow." else "",
+                tr("devices.lan_body") +
+                    if (refused) "\n\n" + tr("devices.lan_refused") else "",
                 style = MaterialTheme.typography.bodySmall,
             )
-            TextButton(onClick = onAllow) { Text(if (refused) "Open App info" else "Allow") }
+            TextButton(onClick = onAllow) { Text(if (refused) tr("devices.open_info") else tr("common.allow")) }
         }
     }
 }
@@ -68,11 +68,11 @@ internal fun NoNetwork() {
     val context = LocalContext.current
     PixelPanel(Modifier.fillMaxWidth().testTag("noNetwork"), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
         Column(Modifier.padding(16.dp)) {
-            Text("Turn on your hotspot or join a Wi-Fi network", fontWeight = FontWeight.SemiBold)
-            Text("The QR code appears here as soon as other devices can reach this phone.", style = MaterialTheme.typography.bodySmall)
+            Text(tr("devices.no_net"), fontWeight = FontWeight.SemiBold)
+            Text(tr("devices.no_net_body"), style = MaterialTheme.typography.bodySmall)
             TextButton(onClick = {
                 runCatching { context.startActivity(Intent(AndroidSettings.ACTION_WIRELESS_SETTINGS)) }
-            }) { Text("Open hotspot settings") }
+            }) { Text(tr("devices.hotspot_settings")) }
         }
     }
 }
@@ -82,17 +82,15 @@ internal fun NoNetwork() {
 internal fun PlatformInstructions() {
     val clipboard = LocalClipboardManager.current
     Spacer(Modifier.height(16.dp))
-    PlatformCard("iPhone, iPad, Mac",
-        "Scan with the Camera app → open the link → Download setup profile → install it in Settings. One-time setup.")
+    PlatformCard(tr("devices.apple"),
+        tr("devices.apple_body"))
     PlatformCard("Android",
-        "Android can't be configured by a link. On that phone set Private DNS to the hostname below " +
-            "(Settings → Network & internet → Private DNS):",
+        tr("devices.android_body"),
         copyValue = ShareContent.DOT_HOST, onCopy = { clipboard.setText(AnnotatedString(it)) })
-    PlatformCard("Windows / laptops",
-        "Open the link above in the laptop's browser for steps, or set DNS to ${ShareContent.DNS4[0]} and ${ShareContent.DNS4[1]}.")
+    PlatformCard(tr("devices.windows"),
+        tr("devices.windows_body", "dns1" to ShareContent.DNS4[0], "dns2" to ShareContent.DNS4[1]))
     Text(
-        "Other devices use AdGuard's free ad-blocking DNS, not this phone's lists, and stay protected " +
-            "after leaving your hotspot. This page is only served while this screen is open.",
+        tr("devices.footer"),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(top = 8.dp)
