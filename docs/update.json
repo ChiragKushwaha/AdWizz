@@ -4,5 +4,11 @@
   "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.2.1/AdWizz.apk",
   "sha256": "bd6d1cd5ee179e47313d6179202317c1b72212115d1c2c5e686eef0f10727e3d",
   "sizeBytes": 2142085,
-  "notes": "Small update with install fixes and behind-the-scenes improvements."
+  "notes": "Small update with install fixes and behind-the-scenes improvements.",
+  "focus": {
+    "versionCode": 1,
+    "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.0.0/AdWizzReelsBlocker.apk",
+    "sha256": "a90535a66daa2b02a0228b11a891a0b9b0d818adc6e63cadbfc976c66fa4a811",
+    "sizeBytes": 52809
+  }
 }
