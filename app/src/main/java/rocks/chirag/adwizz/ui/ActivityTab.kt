@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import android.text.format.DateUtils
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
@@ -30,7 +31,8 @@ internal val Danger = Color(0xFFDC2626)
 internal fun ActivityTab() {
     val log by VpnState.log.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var selected by remember { mutableStateOf<QueryLog?>(null) }
+    // The open "allow / block this domain" dialog survives rotation.
+    var selected by rememberSaveable(stateSaver = QueryLogSaver) { mutableStateOf<QueryLog?>(null) }
 
     if (log.isEmpty()) {
         Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
@@ -91,3 +93,9 @@ internal fun ActivityTab() {
         )
     }
 }
+
+/** Saves a [QueryLog] (three plain values) across rotation and process death. */
+internal val QueryLogSaver = androidx.compose.runtime.saveable.listSaver<QueryLog?, Any>(
+    save = { q -> if (q == null) emptyList() else listOf(q.domain, q.blocked, q.time) },
+    restore = { l -> if (l.size == 3) QueryLog(l[0] as String, l[1] as Boolean, l[2] as Long) else null },
+)

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings as AndroidSettings
@@ -33,7 +34,7 @@ internal fun ShortVideoSection() {
     var on by remember { mutableStateOf(settings.blockShortVideos) }
     var installed by remember { mutableStateOf(FocusAddon.isInstalled(context)) }
     var serviceOn by remember { mutableStateOf(FocusAddon.isServiceEnabled(context)) }
-    var dialog by remember { mutableStateOf<FocusDialog?>(null) }
+    var dialog by rememberSaveable { mutableStateOf<FocusDialog?>(null) }
 
     fun refresh() {
         installed = FocusAddon.isInstalled(context)

@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -24,7 +25,7 @@ internal fun UpdatesSection() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var checking by remember { mutableStateOf(false) }
-    var result by remember { mutableStateOf<String?>(null) }
+    var result by rememberSaveable { mutableStateOf<String?>(null) }
     SectionTitle("Updates")
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {

@@ -86,7 +86,10 @@ internal fun startUpdate(context: Context) {
     val app = context.applicationContext
     if (!Updater.canInstall(app)) {
         runCatching {
-            context.startActivity(Intent(AndroidSettings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, "package:${context.packageName}".toUri()))
+            val settings = Intent(AndroidSettings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, "package:${context.packageName}".toUri())
+            // From the app context (no screen left) Android needs a new task.
+            if (context !is android.app.Activity) settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(settings)
         }
         return
     }

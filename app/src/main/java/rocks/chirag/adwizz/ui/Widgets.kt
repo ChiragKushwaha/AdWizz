@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,7 +42,7 @@ internal fun SwitchRow(title: String, subtitle: String, checked: Boolean, onChan
 
 @Composable
 internal fun DomainAdder(hint: String, onAdd: (String) -> Unit) {
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
     Row(verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(

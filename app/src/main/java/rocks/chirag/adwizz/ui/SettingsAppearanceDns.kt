@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -45,8 +46,9 @@ internal fun DnsSection() {
     val context = LocalContext.current
     val settings = remember { Settings(context) }
     var saved by remember { mutableStateOf(settings.primaryDns to settings.secondaryDns) }
-    var dns1 by remember { mutableStateOf(saved.first) }
-    var dns2 by remember { mutableStateOf(saved.second) }
+    // Half-typed addresses survive rotation.
+    var dns1 by rememberSaveable { mutableStateOf(saved.first) }
+    var dns2 by rememberSaveable { mutableStateOf(saved.second) }
     fun save(primary: String, secondary: String) {
         settings.primaryDns = primary; settings.secondaryDns = secondary
         saved = primary to secondary

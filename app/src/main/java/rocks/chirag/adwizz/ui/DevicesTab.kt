@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -34,12 +35,13 @@ import rocks.chirag.adwizz.share.ShareServer
  */
 @Composable
 fun DevicesTab(
-    server: ShareServer = remember { ShareServer() },
+    server: ShareServer = SetupServer.instance,
     findIp: () -> String? = { LanAddress.pick(LanAddress.candidates()) },
 ) {
     val context = LocalContext.current
     var allowed by remember { mutableStateOf(localNetworkAllowed(context)) }
-    var refused by remember { mutableStateOf(false) }
+    var refused by rememberSaveable { mutableStateOf(false) }
+    var asked by rememberSaveable { mutableStateOf(false) }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         allowed = granted
         refused = !granted
@@ -49,14 +51,16 @@ fun DevicesTab(
         onPauseOrDispose { }
     }
     // Ask right away the first time; after a "Don't allow" the card below explains and retries.
-    LaunchedEffect(Unit) { if (!allowed) ask.launch(LOCAL_NETWORK_PERMISSION) }
+    // (Once per visit: rotating while Android's prompt is open mustn't ask twice.)
+    LaunchedEffect(Unit) { if (!allowed && !asked) { asked = true; ask.launch(LOCAL_NETWORK_PERMISSION) } }
     var url by remember { mutableStateOf<String?>(null) }
     var checked by remember { mutableStateOf(false) }
     var renew by remember { mutableIntStateOf(0) }
 
     // Run the server only while this tab is visible; re-check the address in case the hotspot
-    // or Wi-Fi is switched on while the screen is open.
-    DisposableEffect(server) { onDispose { server.stop() } }
+    // or Wi-Fi is switched on while the screen is open. A rotation keeps it running, so the
+    // QR code someone is about to scan (and its secret link) stays the same.
+    DisposableEffect(server) { onDispose { if (context.findActivity()?.isChangingConfigurations != true) server.stop() } }
     LaunchedEffect(server, renew, allowed) {
         if (!allowed) { server.stop(); url = null; return@LaunchedEffect }
         while (true) {
@@ -120,3 +124,4 @@ private fun ShareLink(url: String) {
     Text(url, fontFamily = FontFamily.Monospace, fontSize = 14.sp, modifier = Modifier.testTag("shareUrl"))
     TextButton(onClick = { clipboard.setText(AnnotatedString(url)) }) { Text("Copy link") }
 }
+

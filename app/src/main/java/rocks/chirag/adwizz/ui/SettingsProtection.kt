@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -52,7 +53,7 @@ internal fun ExcludedAppsSection() {
     val context = LocalContext.current
     val settings = remember { Settings(context) }
     var excluded by remember { mutableStateOf(settings.excludedApps) }
-    var picking by remember { mutableStateOf(false) }
+    var picking by rememberSaveable { mutableStateOf(false) }
 
     SectionTitle("Excluded apps (VPN hidden from them)")
     Text(

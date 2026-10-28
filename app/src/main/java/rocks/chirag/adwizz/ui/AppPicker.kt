@@ -1,5 +1,6 @@
 package rocks.chirag.adwizz.ui
 
+import androidx.compose.runtime.saveable.rememberSaveable
 import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.*
@@ -45,7 +46,7 @@ fun filterApps(apps: List<AppEntry>, query: String, chosen: Set<String>): List<A
 internal fun AppPickerDialog(initial: Set<String>, onDismiss: () -> Unit, onSave: (Set<String>) -> Unit) {
     val context = LocalContext.current
     var apps by remember { mutableStateOf<List<AppEntry>?>(null) }
-    var chosen by remember { mutableStateOf(initial) }
+    var chosen by rememberSaveable(stateSaver = StringSetSaver) { mutableStateOf(initial) }
     LaunchedEffect(Unit) {
         val app = context.applicationContext
         apps = withContext(Dispatchers.IO) { loadApps(app) }
@@ -63,7 +64,7 @@ internal fun AppPickerDialog(initial: Set<String>, onDismiss: () -> Unit, onSave
 /** Body of the app picker: search box + checkable list. [apps] null means still loading. */
 @Composable
 fun AppPickerContent(apps: List<AppEntry>?, chosen: Set<String>, onChange: (Set<String>) -> Unit) {
-    var query by remember { mutableStateOf("") }
+    var query by rememberSaveable { mutableStateOf("") }
     Column {
         OutlinedTextField(
             query, { query = it }, placeholder = { Text("Search apps") },
@@ -108,3 +109,8 @@ fun AppPickerContent(apps: List<AppEntry>?, chosen: Set<String>, onChange: (Set<
         }
     }
 }
+
+/** Ticked apps survive rotation (a Set isn't Bundle-able, a list of names is). */
+internal val StringSetSaver = androidx.compose.runtime.saveable.listSaver<Set<String>, String>(
+    save = { it.toList() }, restore = { it.toSet() },
+)

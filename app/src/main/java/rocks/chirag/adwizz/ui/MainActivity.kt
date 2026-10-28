@@ -71,9 +71,14 @@ class MainActivity : ComponentActivity() {
         intent.removeExtra(UpdateNotifier.EXTRA_INSTALL)
         UpdateNotifier.cancel(this)
         val app = applicationContext
+        // The download can take a while: hold the Activity weakly so a rotation can free the old one,
+        // and finish with whichever screen is current (or the app itself).
+        val screen = java.lang.ref.WeakReference(this)
         Thread {
             Updater.check(app)?.let { Updater.prepare(app, it) }
-            runOnUiThread { startUpdate(this) }
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                startUpdate(screen.get()?.takeUnless { it.isDestroyed } ?: app)
+            }
         }.start()
     }
 

@@ -1,6 +1,7 @@
 package rocks.chirag.adwizz.ui
 
 import android.content.Context
+import rocks.chirag.adwizz.share.ShareServer
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Build
@@ -84,4 +85,17 @@ internal fun restartVpnIfRunning(context: Context) {
     if (VpnState.status.value == Status.RUNNING) {
         AdBlockVpnService.send(context, AdBlockVpnService.ACTION_RESTART)
     }
+}
+
+/** The setup page's server, one per app process so it outlives a screen rotation. */
+internal object SetupServer { val instance = ShareServer() }
+
+/** The Activity behind a Compose context (it may be wrapped, e.g. by a theme). */
+internal fun android.content.Context.findActivity(): android.app.Activity? {
+    var c: android.content.Context? = this
+    while (c is android.content.ContextWrapper) {
+        if (c is android.app.Activity) return c
+        c = c.baseContext
+    }
+    return null
 }
