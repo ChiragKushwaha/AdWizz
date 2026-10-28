@@ -19,7 +19,9 @@ import rocks.chirag.adwizz.data.VpnState
 class AdWizzBrandingTest : UiTestBase() {
 
     @Test fun appIsCalledAdWizz() {
-        assertEquals("AdWizz", ctx.getString(rocks.chirag.adwizz.R.string.app_name))
+        // Debug builds are labelled "AdWizz Debug" (src/debug) so they can sit next to the real app.
+        val expected = if (rocks.chirag.adwizz.BuildConfig.DEBUG) "AdWizz Debug" else "AdWizz"
+        assertEquals(expected, ctx.getString(rocks.chirag.adwizz.R.string.app_name))
         launchApp()
         rule.onNodeWithText("AdWizz").assertIsDisplayed()
         rule.onAllNodesWithText("AdShield", substring = true).assertCountEquals(0)

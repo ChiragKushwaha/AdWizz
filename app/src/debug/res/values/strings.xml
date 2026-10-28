@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lets you tell the test build apart from the real app on the same phone. -->
+    <string name="app_name">AdWizz Debug</string>
+</resources>

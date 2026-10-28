@@ -59,6 +59,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Own package name, so a test build sits next to the real app instead of blocking its
+            // install ("App not installed": the debug and release keys differ). Registered in Firebase.
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
