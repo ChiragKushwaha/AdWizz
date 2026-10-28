@@ -5,6 +5,8 @@ internal object MobileConfig {
     /**
      * Apple configuration profile (iOS 14+, macOS 11+) that turns on encrypted DNS through AdGuard.
      * Unsigned, so the device shows "Not verified" — that's normal for profiles not from a CA.
+     * PayloadScope System: macOS 26.1+ refuses user-scoped DNS profiles with "The VPN service could
+     * not be created" (DNS settings and VPNs share NetworkExtension). iOS ignores the key.
      */
     fun xml(): String {
         val addrs = (ShareContent.DNS4 + ShareContent.DNS6).joinToString("") { "<string>$it</string>" }
@@ -32,6 +34,7 @@ internal object MobileConfig {
   <key>PayloadDisplayName</key><string>AdWizz ad blocking</string>
   <key>PayloadIdentifier</key><string>rocks.chirag.adwizz.dns</string>
   <key>PayloadRemovalDisallowed</key><false/>
+  <key>PayloadScope</key><string>System</string>
   <key>PayloadType</key><string>Configuration</string>
   <key>PayloadUUID</key><string>A3C1E2B4-7D5F-4E8A-9B6C-1D2E3F4A5B6C</string>
   <key>PayloadVersion</key><integer>1</integer>

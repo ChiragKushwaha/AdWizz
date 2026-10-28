@@ -71,6 +71,13 @@ class ShareContentTest {
         uuids.forEach { java.util.UUID.fromString(it) }
     }
 
+    @Test fun mobileConfigIsSystemScopedForMacOS() {
+        // macOS 26.1+ rejects user-scoped DNS profiles ("The VPN service could not be created").
+        val xml = ShareContent.mobileConfig()
+        val top = xml.substringAfterLast("</array>")   // the profile's own keys, after PayloadContent
+        assertTrue(Regex("<key>PayloadScope</key>\\s*<string>System</string>").containsMatchIn(top))
+    }
+
     @Test fun dohUrlUsesHttps() {
         assertTrue(ShareContent.DOH_URL.startsWith("https://"))
         assertTrue(ShareContent.DOH_URL.contains(ShareContent.DOT_HOST))
