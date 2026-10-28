@@ -7,6 +7,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ShortVideoRulesTest {
+    @Test fun viewIdsAreFullyQualified() {
+        assertEquals(
+            "com.google.android.youtube:id/reel_recycler",
+            ShortVideoRules.viewIdsFor("com.google.android.youtube").first()
+        )
+        assertEquals("com.android.chrome:id/url_bar", ShortVideoRules.urlBarIdsFor("com.android.chrome").first())
+        assertTrue(ShortVideoRules.viewIdsFor("com.example.unwatched").isEmpty())
+    }
+
     @Test fun spotsShortVideoAddresses() {
         listOf(
             "youtube.com/shorts/abc123",
