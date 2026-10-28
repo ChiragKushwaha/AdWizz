@@ -40,7 +40,8 @@ internal class BlocklistDownloader(private val dir: File) {
         }
         try {
             // Unchanged since last time: keep the file we have (a few bytes instead of megabytes).
-            if (conn.responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) { list.setLastModified(System.currentTimeMillis()); return }
+            // (The file is left untouched, so the on-device database isn't rebuilt for nothing.)
+            if (conn.responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) return
             if (conn.responseCode !in 200..299) error("HTTP ${conn.responseCode}")
             val tmp = File(dir, "$id.tmp")
             conn.inputStream.use { input -> tmp.outputStream().use { out -> copyCapped(input, out, tmp) } }

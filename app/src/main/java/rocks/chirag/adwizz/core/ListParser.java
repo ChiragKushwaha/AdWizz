@@ -34,6 +34,16 @@ public final class ListParser {
         }
     }
 
+    /** Streams every domain in [reader] to [into] (used to build the on-disk {@link DomainIndex}). */
+    public static void parseInto(Reader reader, java.util.function.Consumer<String> into) throws IOException {
+        BufferedReader br = reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader, 1 << 16);
+        String line;
+        while ((line = br.readLine()) != null) {
+            String d = parseLine(line);
+            if (d != null) into.accept(d);
+        }
+    }
+
     static String parseLine(String raw) {
         String line = raw.trim();
         if (line.isEmpty() || line.charAt(0) == '#' || line.charAt(0) == '!') return null;

@@ -48,12 +48,25 @@ class SourcesTest {
         assertTrue(trackers.containsAll(listOf("easyprivacy", "frogeye_firstparty", "frogeye_multiparty", "native_samsung", "native_xiaomi")))
     }
 
-    @Test fun neverUsesListsThatBreakPopularApps() {
-        // Perflyst's Android list blocks graph.instagram.com / mqtt-mini.facebook.com (breaks Instagram and Messenger);
-        // "YouTube ads" lists block googlevideo.com hosts that also serve the videos.
-        Sources.ALL.flatMap { it.urls }.forEach { url ->
-            assertFalse(url, url.contains("Perflyst") || url.contains("youTube_ads") || url.contains("youtube", ignoreCase = true))
+    @Test fun listsThatBreakAppsAreOptionalAndSayWhy() {
+        // Perflyst blocks graph.instagram.com / mqtt-mini.facebook.com; Pro++ blocks graph.instagram.com.
+        listOf("perflyst_android", "hagezi_proplus").forEach { id ->
+            val src = Sources.ALL.single { it.id == id }
+            assertEquals(SourceGroup.ADS, src.group)            // individually switchable…
+            assertFalse(id in Sources.DEFAULT_ENABLED)          // …and off unless the user turns it on
         }
+        assertTrue(Sources.ALL.single { it.id == "perflyst_android" }.description.contains("Instagram"))
+    }
+
+    @Test fun neverUsesYoutubeAdLists() {
+        // "YouTube ads" lists block googlevideo.com hosts that also serve the videos.
+        Sources.ALL.flatMap { it.urls }.forEach { assertFalse(it, it.contains("youtube", ignoreCase = true)) }
+    }
+
+    @Test fun threatIntelligenceIsPartOfMaliciousBlocking() {
+        val tif = Sources.ALL.single { it.id == "hagezi_tif" }
+        assertEquals(SourceGroup.SECURITY, tif.group)
+        assertTrue(tif.urls.all { it.endsWith("/tif.txt") } && tif.urls.size >= 2)
     }
 
     @Test fun everyGroupHasLists() {

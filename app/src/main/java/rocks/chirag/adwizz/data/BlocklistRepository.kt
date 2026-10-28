@@ -2,6 +2,8 @@ package rocks.chirag.adwizz.data
 
 import android.content.Context
 import android.util.Log
+import rocks.chirag.adwizz.BuildConfig
+import rocks.chirag.adwizz.core.DomainLookup
 import rocks.chirag.adwizz.core.DomainMatcher
 import rocks.chirag.adwizz.core.DomainSet
 import rocks.chirag.adwizz.core.ListParser
@@ -13,7 +15,9 @@ class BlocklistRepository(context: Context) {
     // Application context only: callers may pass an Activity and outlive it (slow downloads).
     private val context: Context = context.applicationContext
     private val settings = Settings(context)
-    private val downloader = BlocklistDownloader(File(context.filesDir, "lists").apply { mkdirs() })
+    private val listDir = File(context.filesDir, "lists").apply { mkdirs() }
+    private val downloader = BlocklistDownloader(listDir)
+    private val index = sharedIndex(listDir)
 
     private fun fileFor(id: String) = downloader.fileFor(id)
 
@@ -44,22 +48,24 @@ class BlocklistRepository(context: Context) {
     fun buildMatcher(): DomainMatcher = loadMatcher()
 
     private fun loadMatcher(): DomainMatcher {
-        // Sized for ~1M domains up front so big lists load without rehashing.
-        val blocked = DomainSet(1_000_000)
-        context.assets.open("starter_blocklist.txt").bufferedReader().use { ListParser.parseInto(it, blocked) }
-        if (settings.blockTrackers) {
-            context.assets.open("starter_trackers.txt").bufferedReader().use { ListParser.parseInto(it, blocked) }
+        // The big lists live in the on-device database (a memory-mapped file, not the heap).
+        val inputs = buildList {
+            add(BlocklistIndex.Input("starter", "app${BuildConfig.VERSION_CODE}") { context.assets.open("starter_blocklist.txt").reader() })
+            if (settings.blockTrackers) {
+                add(BlocklistIndex.Input("starter_trackers", "app${BuildConfig.VERSION_CODE}") { context.assets.open("starter_trackers.txt").reader() })
+            }
+            for (id in activeSources().map { it.id }) {
+                val f = fileFor(id)
+                if (f.exists() && f.length() > 0) add(BlocklistIndex.Input(id, BlocklistIndex.version(f)) { f.reader() })
+            }
         }
-        for (id in activeSources().map { it.id }) {
-            val f = fileFor(id)
-            if (f.exists()) runCatching { f.bufferedReader().use { ListParser.parseInto(it, blocked) } }
-                .onFailure { Log.w(TAG, "Failed to parse $id", it) }
-        }
-        // "Block Reels & Shorts" also cuts off short-video-only services (TikTok etc.) everywhere.
-        if (settings.blockShortVideos) ShortVideoRules.DOMAINS.forEach { blocked.add(it) }
-        ListParser.normalise(settings.customBlocklist).forEach { blocked.add(it) }
+        val database = index.get(inputs)
+        // Small lists that change often stay in memory: the user's own blocks and "Block Reels & Shorts".
+        val extra = DomainSet()
+        if (settings.blockShortVideos) ShortVideoRules.DOMAINS.forEach { extra.add(it) }
+        ListParser.normalise(settings.customBlocklist).forEach { extra.add(it) }
         val allowed = DomainSet().apply { ListParser.normalise(settings.allowlist).forEach { add(it) } }
-        return DomainMatcher(blocked.trim(), allowed)
+        return DomainMatcher(arrayOf<DomainLookup>(database, extra), allowed)
             .withGeneratedDomainBlocking(settings.blockGenerated)
             .also {
                 VpnState.setListSize(it.size())
@@ -92,6 +98,10 @@ class BlocklistRepository(context: Context) {
 
     companion object {
         private const val TAG = "Blocklist"
+        private val indexes = HashMap<String, BlocklistIndex>()
+
+        /** One database per folder, shared by every repository (the VPN, the settings screen…). */
+        @Synchronized internal fun sharedIndex(dir: File) = indexes.getOrPut(dir.absolutePath) { BlocklistIndex(dir) }
         /** Ad networks rotate domains constantly and the lists update daily or more. */
         internal const val STALE_MS = 12L * 60 * 60 * 1000
         internal const val STALE_METERED_MS = 2L * 24 * 60 * 60 * 1000

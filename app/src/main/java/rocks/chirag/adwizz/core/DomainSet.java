@@ -13,7 +13,7 @@ import java.util.Arrays;
  *
  * Not thread-safe while being built; safe for concurrent reads once built (swap whole instances).
  */
-public final class DomainSet {
+public final class DomainSet implements DomainLookup {
     private static final int MAX_LEN = 255;
 
     private byte[] data;
@@ -30,7 +30,7 @@ public final class DomainSet {
         data = new byte[Math.max(64, expected * 24)];
     }
 
-    public int size() { return count; }
+    @Override public int size() { return count; }
 
     /** Adds a domain (must already be lower-case ASCII). Returns false if it was already present. */
     public boolean add(String d) {
@@ -58,7 +58,7 @@ public final class DomainSet {
     public boolean contains(CharSequence s) { return contains(s, 0); }
 
     /** True if s.subSequence(start, s.length()) is in the set — without creating that substring. */
-    public boolean contains(CharSequence s, int start) {
+    @Override public boolean contains(CharSequence s, int start) {
         int len = s.length() - start;
         if (len <= 0 || len > MAX_LEN || count == 0) return false;
         int mask = table.length - 1;

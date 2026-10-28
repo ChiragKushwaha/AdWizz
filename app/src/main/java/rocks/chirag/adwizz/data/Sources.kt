@@ -39,6 +39,12 @@ object Sources {
             "hagezi_pro", "HaGeZi Pro", hagezi("pro.txt"),
             "Broad ads, trackers, pop-ups and redirect ad networks"
         ),
+        // Off by default: blocks graph.instagram.com and mqtt-mini.facebook.com, which Instagram and Messenger need.
+        BlocklistSource(
+            "perflyst_android", "Perflyst Android tracking",
+            listOf("https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/android-tracking.txt"),
+            "App tracking on Android. Breaks parts of Instagram and Messenger"
+        ),
         // Off by default: also blocks some app back-ends, e.g. graph.instagram.com (Instagram log-ins and sharing).
         BlocklistSource(
             "hagezi_proplus", "HaGeZi Pro++", hagezi("pro.plus.txt"),
@@ -85,6 +91,10 @@ object Sources {
             "phishing_army", "Phishing Army",
             listOf("https://phishing.army/download/phishing_army_blocklist.txt"),
             "Phishing and scam sites", SourceGroup.SECURITY
+        ),
+        BlocklistSource(
+            "hagezi_tif", "HaGeZi Threat Intelligence", hagezi("tif.txt"),
+            "2 million+ malware, phishing, scam and spam domains", SourceGroup.SECURITY
         ),
         BlocklistSource(
             "nocoin", "NoCoin",

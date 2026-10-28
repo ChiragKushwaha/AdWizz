@@ -75,8 +75,8 @@ class BlocklistDownloaderTest {
         d.download(source("/list"))
         assertEquals("\"v1\"", requests.last()["If-None-Match"])
         assertEquals("Wed, 28 Oct 2026 10:00:00 GMT", requests.last()["If-Modified-Since"])
-        assertEquals(body, File(dir, "test.txt").readText())          // kept
-        assertTrue(File(dir, "test.txt").lastModified() > 0)          // and marked fresh
+        assertEquals(body, File(dir, "test.txt").readText())          // kept as it was
+        assertEquals(0L, File(dir, "test.txt").lastModified())        // untouched: no database rebuild
     }
 
     @Test fun aMissingListIsFetchedInFullEvenWithAnOldTag() {

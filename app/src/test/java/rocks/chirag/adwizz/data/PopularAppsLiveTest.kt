@@ -6,6 +6,8 @@ import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
 import org.junit.Test
+import rocks.chirag.adwizz.core.DomainIndex
+import rocks.chirag.adwizz.core.DomainLookup
 import rocks.chirag.adwizz.core.DomainMatcher
 import rocks.chirag.adwizz.core.DomainSet
 import rocks.chirag.adwizz.core.ListParser
@@ -30,12 +32,15 @@ class PopularAppsLiveTest {
         /** Default switches: the default ad lists plus trackers, security and DNS-bypass lists. */
         @BeforeClass @JvmStatic fun load() {
             if (!live()) return
-            val set = DomainSet(1_000_000)
+            // Same on-device database the app builds.
+            val builder = DomainIndex.Builder(3_000_000)
             Sources.ALL.filter { it.id in Sources.DEFAULT_ENABLED || it.group != SourceGroup.ADS }.forEach { src ->
                 val text = src.urls.firstNotNullOfOrNull { runCatching { fetch(it) }.getOrNull() } ?: error("Couldn't download ${src.id}")
-                ListParser.parseInto(text.reader(), set)
+                ListParser.parseInto(text.reader(), builder::add)
             }
-            matcher = DomainMatcher(set, DomainSet())
+            val file = java.io.File.createTempFile("blocked", ".idx").apply { deleteOnExit() }
+            builder.writeTo(file)
+            matcher = DomainMatcher(arrayOf<DomainLookup>(DomainIndex.open(file)), DomainSet())
         }
     }
 
@@ -82,7 +87,7 @@ class PopularAppsLiveTest {
 
     @Test fun listIsBigButFitsOnAPhone() {
         val n = m().size()
-        assertTrue("only $n domains", n > 800_000)
-        assertTrue("$n domains is too many for low-memory phones", n < 2_000_000)
+        assertTrue("only $n domains", n > 2_000_000)   // the threat list alone is ~2.1M
+        assertTrue("$n domains: more than the on-device database is sized for", n < 8_000_000)
     }
 }

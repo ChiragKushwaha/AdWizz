@@ -92,11 +92,16 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 
 - **Lists:** a built-in starter list (works offline) plus StevenBlack, AdGuard DNS, HaGeZi Pro,
   OISD Big, AdGuard Mobile Ads (ad SDKs inside apps), EasyPrivacy, Frogeye first- and third-party
-  trackers, phone-maker telemetry lists, Phishing Army and NoCoin — about 860,000 domains. HaGeZi
-  Pro++ is an optional stricter switch. Lists refresh every 12 hours on Wi-Fi (every 2 days on mobile
-  data, and unchanged lists aren't downloaded again), and live in a compact in-memory table (about
-  25 bytes per domain) so it stays light. A live test checks that the default lists never block
-  hosts popular apps need (YouTube's video servers, Instagram, WhatsApp, UPI apps…).
+  trackers, phone-maker telemetry lists, HaGeZi Threat Intelligence, Phishing Army and NoCoin —
+  about 3 million domains. HaGeZi Pro++ and Perflyst's Android list are optional switches (both
+  break parts of Instagram / Messenger). Lists refresh every 12 hours on Wi-Fi (every 2 days on
+  mobile data, and unchanged lists aren't downloaded again). A live test checks that the default
+  lists never block hosts popular apps need (YouTube's video servers, Instagram, WhatsApp, UPI apps…).
+- **On-device blocklist database:** the lists are compiled into one file of sorted 64-bit domain
+  fingerprints (8 bytes per domain), memory-mapped and binary-searched: a few microseconds per
+  lookup, and Android only keeps the pages lookups touch in RAM. It's rebuilt only when a list
+  changes, so turning protection on just opens the file. Your own blocks, the allowlist and
+  "Block Reels & Shorts" stay in small in-memory sets.
 - **Reels & Shorts:** these come from the same servers as the rest of Instagram and YouTube, so DNS
   can't block them. The optional *Block Reels & Shorts* switch uses an Accessibility service instead:
   it checks which screen those apps are showing and presses Back when it's a short-video player.
@@ -158,7 +163,7 @@ Website: `docs/` on GitHub Pages. Fresh screenshots: `scripts/capture-screenshot
 
 | Path | What lives there |
 |---|---|
-| `core/` | Plain Java, no Android: `IpPacket`/`IpBuilder`/`Bytes` (packets), `DnsMessage`/`DnsResponse` (DNS), `DomainSet` + `DomainHash` (compact domain table), `DomainMatcher`, `ListParser`, `GeneratedDomain` |
+| `core/` | Plain Java, no Android: `IpPacket`/`IpBuilder`/`Bytes` (packets), `DnsMessage`/`DnsResponse` (DNS), `DomainIndex` (on-device blocklist database), `DomainSet` + `DomainHash` (small in-memory sets), `DomainMatcher`, `ListParser`, `GeneratedDomain` |
 | `vpn/` | `AdBlockVpnService` (lifecycle), `TunnelSetup` + `ResolverLists`, `PacketPump` (read → filter → answer), `UpstreamDns`, `NetworkWatcher`, `Maintenance`, notification, Quick Settings tile |
 | `data/` | `Settings`, `Sources`, `BlocklistRepository` + downloader, `VpnState`, updater (`Updater`, `UpdateNotifier`, `ApkInstaller`, …) |
 | `app/…/focus/` | `FocusStateProvider`: shares the *Block Reels & Shorts* switch with the add-on (signature-only) |
@@ -175,4 +180,4 @@ Every source file is kept under ~120 lines.
 
 [MIT](LICENSE) © 2026 Chirag Kushwaha.
 Font: [Pixelify Sans](licenses/PixelifySans-OFL.txt) (SIL Open Font License). Blocklists belong to
-their authors (StevenBlack, AdGuard, HaGeZi, OISD, EasyPrivacy/firebog, Frogeye, Phishing Army, NoCoin).
+their authors (StevenBlack, AdGuard, HaGeZi, OISD, EasyPrivacy/firebog, Frogeye, Perflyst, Phishing Army, NoCoin).
