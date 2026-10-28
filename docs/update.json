@@ -6,9 +6,9 @@
   "sizeBytes": 1925506,
   "notes": "Installs again on every phone: the Reels & Shorts blocker is now a small add-on. New wizard look and a smaller app.",
   "focus": {
-    "versionCode": 1,
-    "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.0.0/AdWizzReelsBlocker.apk",
-    "sha256": "a90535a66daa2b02a0228b11a891a0b9b0d818adc6e63cadbfc976c66fa4a811",
-    "sizeBytes": 52809
+    "versionCode": 2,
+    "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.0.1/AdWizzReelsBlocker.apk",
+    "sha256": "4c789d8bbac2a329c421aa521b24c1ee306643d0e5b8589daca6364f510d9892",
+    "sizeBytes": 21683
   }
 }
