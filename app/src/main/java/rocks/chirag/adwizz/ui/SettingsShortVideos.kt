@@ -27,8 +27,9 @@ internal fun ShortVideoSection() {
     SectionTitle("Focus")
     SwitchRow(
         "Block Reels & Shorts",
-        "Leaves Instagram Reels and YouTube Shorts as soon as they open, and closes " +
-            "short-video apps (TikTok, Moj, Josh, Chingari). Works with or without the VPN.",
+        "Leaves Instagram Reels and YouTube Shorts as soon as they open, in the apps and in " +
+            "browsers like Chrome, and closes short-video apps (TikTok, Moj, Josh, Likee and more). " +
+            "With protection on, TikTok and similar sites are blocked in every app too.",
         on,
     ) { want ->
         if (want && !serviceOn) {
@@ -36,6 +37,7 @@ internal fun ShortVideoSection() {
         } else {
             on = want
             settings.blockShortVideos = want
+            reload(context)
         }
     }
     if (on && !serviceOn) {
@@ -56,9 +58,10 @@ internal fun ShortVideoSection() {
             text = {
                 Text(
                     "To spot Reels and Shorts, AdWizz uses Android's Accessibility service to check " +
-                        "which screen Instagram, YouTube and short-video apps are showing, then presses " +
-                        "Back for you.\n\nIt only looks at those apps, doesn't read your messages or what " +
-                        "you type, and nothing leaves your phone.\n\nOn the next screen, tap " +
+                        "which screen Instagram, YouTube and short-video apps are showing, and which address " +
+                        "your browser has open, then presses Back for you.\n\nIt only looks at those apps " +
+                        "and browsers, doesn't read your messages, pages or what you type, and nothing " +
+                        "leaves your phone.\n\nOn the next screen, tap " +
                         "\"AdWizz: block Reels & Shorts\" and turn it on."
                 )
             },
@@ -67,6 +70,7 @@ internal fun ShortVideoSection() {
                     explaining = false
                     on = true
                     settings.blockShortVideos = true
+                    reload(context)
                     open(context, AndroidSettings.ACTION_ACCESSIBILITY_SETTINGS)
                 }) { Text("Continue") }
             },

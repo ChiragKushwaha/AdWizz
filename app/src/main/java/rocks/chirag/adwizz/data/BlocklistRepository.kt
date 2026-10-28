@@ -5,6 +5,7 @@ import android.util.Log
 import rocks.chirag.adwizz.core.DomainMatcher
 import rocks.chirag.adwizz.core.DomainSet
 import rocks.chirag.adwizz.core.ListParser
+import rocks.chirag.adwizz.focus.ShortVideoRules
 import java.io.File
 
 /** Loads the bundled starter list plus downloaded lists, and refreshes downloads on demand. */
@@ -46,6 +47,8 @@ class BlocklistRepository(context: Context) {
             if (f.exists()) runCatching { f.bufferedReader().use { ListParser.parseInto(it, blocked) } }
                 .onFailure { Log.w(TAG, "Failed to parse $id", it) }
         }
+        // "Block Reels & Shorts" also cuts off short-video-only services (TikTok etc.) everywhere.
+        if (settings.blockShortVideos) ShortVideoRules.DOMAINS.forEach { blocked.add(it) }
         ListParser.normalise(settings.customBlocklist).forEach { blocked.add(it) }
         val allowed = DomainSet().apply { ListParser.normalise(settings.allowlist).forEach { add(it) } }
         return DomainMatcher(blocked.trim(), allowed)
