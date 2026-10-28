@@ -110,8 +110,7 @@ No magic, just DNS. AdWizz runs a *local* VPN that only carries DNS look-ups, so
 No account, no servers of our own, and your browsing and DNS look-ups never leave your phone: the
 list of what was blocked lives only in your phone's memory. AdWizz talks to the DNS server you choose,
 the public blocklist mirrors, this repo's website (to check for updates), and Google Firebase for
-anonymous usage statistics, crash reports and performance data (app opens, start-up time, device
-model). It never sends the sites or apps you use, and the advertising ID is turned off.
+anonymous usage statistics and crash reports (app opens, app version, device model). It never sends the sites or apps you use, and the advertising ID is turned off.
 The optional Reels & Shorts blocker only looks at Instagram, YouTube and short-video apps, only
 checks which screen is open (not what's on it), and keeps nothing.
 

@@ -8,8 +8,6 @@ plugins {
     id("com.google.gms.google-services")
     // Crash reports with readable stack traces (uploads R8 mapping files for release builds).
     id("com.google.firebase.crashlytics")
-    // Performance Monitoring: app start, screen rendering, network requests, custom traces.
-    id("com.google.firebase.firebase-perf")
 }
 
 // Release signing: reads keystore.properties (kept out of git). Without it, release builds fall
@@ -26,8 +24,8 @@ android {
         applicationId = "rocks.chirag.adwizz"
         minSdk = 24  // Android 7.0: Firebase Analytics 24+ requires it
         targetSdk = 37
-        versionCode = 4
-        versionName = "1.2.1"
+        versionCode = 5
+        versionName = "1.3.0"
         // Phones (and Apple-silicon emulators) are ARM; x86 builds would only add size.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
         // The optional "AdWizz Reels Blocker" add-on (the :focus module).
@@ -129,7 +127,6 @@ dependencies {
     implementation("androidx.fragment:fragment:1.8.5")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-crashlytics")
-    implementation("com.google.firebase:firebase-perf")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.17")

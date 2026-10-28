@@ -56,7 +56,7 @@ class AdBlockVpnService : VpnService() {
         VpnNotification.showForeground(this, ACTION_STOP)
         Thread {
             try {
-                Telemetry.trace("vpn_start") { reloadConfig(); establish() }
+                reloadConfig(); establish()
                 Telemetry.event(this, "protection_on", "list_size" to matcher.size())
                 network = NetworkWatcher(getSystemService(ConnectivityManager::class.java)) { upstream.refreshNetworkDns(it) }
                 maintenance = Maintenance(applicationContext, repo, ::reloadConfig).also { it.start() }

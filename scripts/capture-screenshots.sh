@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Takes the website's screenshots from a connected phone running AdWizz:
-#   docs/screenshots/{home-light,home-dark,spell,settings,devices}.webp
+#   docs/screenshots/{home-light,home-dark,spell,settings,focus,devices}.webp
 #
-# Uses Android's demo mode for a clean status bar (fixed time, full battery), and shows the
-# Settings tab rather than Activity so no personal browsing data ends up on the website.
+# Uses Android's demo mode for a clean status bar (fixed time, full battery). Home shows recent
+# DNS look-ups, so run it on an emulator (or a spare phone), not your own: ANDROID_SERIAL picks it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ADB="${ADB:-$(command -v adb || echo "$HOME/Library/Android/sdk/platform-tools/adb")}"
@@ -41,7 +41,7 @@ dm enter; dm clock -e hhmm 0930; dm battery -e level 100 -e plugged false; dm ne
 trap 'dm exit' EXIT
 
 "$ADB" shell am start -n rocks.chirag.adwizz/.ui.MainActivity >/dev/null; sleep 3
-tap 'text="Settings"'; sleep 1
+tap 'text="Home"'; sleep 1
 # First run on a device: accept Android's one-time VPN prompt, then stop so the spell can be timed.
 if has 'Turn protection on'; then
   tap 'content-desc="Turn protection on"'; sleep 2
@@ -53,9 +53,11 @@ fi
 theme light; shot home-light
 tap 'content-desc="Turn protection on"'; sleep 1.6; shot spell      # mid-spell: ads lifting off
 waitfor 'text="Protected"'; sleep 2; theme dark; shot home-dark
+theme light; tap 'text="Settings"'; sleep 1
 scroll; shot settings   # one scroll: the Protection switches
-theme light; tap 'text="Devices"'; sleep 3; shot devices
-tap 'text="Settings"'
+for _ in 1 2 3 4 5 6; do has 'text="Focus"' && break; scroll; done; scroll; shot focus   # Block Reels & Shorts
+tap 'text="Devices"'; sleep 3; shot devices
+tap 'text="Home"'
 
 python3 - "$TMP" "$OUT" <<'EOF'
 import sys, glob, os

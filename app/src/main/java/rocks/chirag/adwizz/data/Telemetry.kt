@@ -5,11 +5,10 @@ import android.os.Bundle
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.perf.FirebasePerformance
 
 /**
- * One place for Firebase: Analytics events (shown live in the Realtime / DebugView reports),
- * Crashlytics context and Performance traces. Release Monitoring in the console is built from
+ * One place for Firebase: Analytics events (shown live in the Realtime / DebugView reports)
+ * and Crashlytics context. Release Monitoring in the console is built from
  * Crashlytics + Analytics, so it needs nothing extra here.
  *
  * Privacy: never pass domain names, app names or anything the user browsed — only counts,
@@ -40,15 +39,6 @@ object Telemetry {
     /** Something went wrong but the app recovered: report it without crashing. */
     fun nonFatal(error: Throwable) = safely { FirebaseCrashlytics.getInstance().recordException(error) }
 
-    /** Times [block] as a Performance Monitoring custom trace named [name]. */
-    inline fun <T> trace(name: String, block: () -> T): T {
-        val trace = runCatching { FirebasePerformance.getInstance().newTrace(name).also { it.start() } }.getOrNull()
-        try {
-            return block()
-        } finally {
-            runCatching { trace?.stop() }
-        }
-    }
 
     private inline fun safely(block: () -> Unit) {
         try { block() } catch (e: Throwable) { Log.d(TAG, "Telemetry skipped: ${e.message}") }

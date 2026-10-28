@@ -33,7 +33,7 @@ class BlocklistRepository(context: Context) {
             System.currentTimeMillis() - settings.lastListUpdate > STALE_MS
 
     /** Builds a matcher from everything available on disk. Safe to call from any background thread. */
-    fun buildMatcher(): DomainMatcher = Telemetry.trace("blocklist_load") { loadMatcher() }
+    fun buildMatcher(): DomainMatcher = loadMatcher()
 
     private fun loadMatcher(): DomainMatcher {
         // Sized for ~1M domains up front so big lists load without rehashing.
