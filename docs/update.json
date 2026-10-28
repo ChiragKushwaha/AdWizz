@@ -1,10 +1,10 @@
 {
-  "versionCode": 5,
-  "versionName": "1.3.0",
-  "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.3.0/AdWizz.apk",
-  "sha256": "0560545442d153757c7f8f7da1113da3d1b058ddb3fbfbb56ac8c814200dd466",
-  "sizeBytes": 1925506,
-  "notes": "Installs again on every phone: the Reels & Shorts blocker is now a small add-on. New wizard look and a smaller app.",
+  "versionCode": 6,
+  "versionName": "1.3.1",
+  "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.3.1/AdWizz.apk",
+  "sha256": "de9d86ab58a493b4d2e29d6ec3612d887940091cb28d0dd8e048faa1596163c6",
+  "sizeBytes": 1922990,
+  "notes": "Protect other devices works on Android 17, step-by-step Reels Blocker setup, and smaller downloads.",
   "focus": {
     "versionCode": 2,
     "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.0.1/AdWizzReelsBlocker.apk",
