@@ -43,6 +43,8 @@ android {
         resources.excludes += listOf(
             "kotlin/**", "META-INF/*.version", "META-INF/**/*.kotlin_module", "META-INF/androidx/**",
             "DebugProbesKt.bin", "META-INF/com/android/build/gradle/**",
+            // Build-time leftovers nothing reads at runtime.
+            "kotlin-tooling-metadata.json", "client_analytics.proto", "META-INF/version-control-info.textproto",
         )
     }
 
@@ -72,6 +74,7 @@ android {
             manifestPlaceholders["focusPackage"] = "rocks.chirag.adwizz.focus.debug"
         }
         release {
+            vcsInfo.include = false   // no git commit info file in the APK
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

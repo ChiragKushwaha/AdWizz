@@ -32,6 +32,9 @@ android {
     buildFeatures { buildConfig = true }
 
     androidResources { localeFilters += listOf("en") }
+    packaging {
+        resources.excludes += listOf("kotlin/**", "META-INF/**", "kotlin-tooling-metadata.json", "DebugProbesKt.bin")
+    }
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -59,6 +62,7 @@ android {
             buildConfigField("String", "MAIN_APP_ID", "\"$mainAppId.debug\"")
         }
         release {
+            vcsInfo.include = false
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
