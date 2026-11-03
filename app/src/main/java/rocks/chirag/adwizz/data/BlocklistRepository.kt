@@ -18,7 +18,14 @@ class BlocklistRepository(context: Context) {
     private val settings = Settings(context)
     private val listDir = File(context.filesDir, "lists").apply { mkdirs() }
     private val downloader = BlocklistDownloader(listDir)
-    private val index = sharedIndex(listDir)
+    private val adsIndex = sharedIndex(listDir, "ads")
+    private val trackersIndex = sharedIndex(listDir, "trackers")
+    private val securityIndex = sharedIndex(listDir, "security")
+
+    init {
+        // Before 1.5 everything lived in one database; it's now split by category (~24 MB freed).
+        File(listDir, "blocked.idx").delete(); File(listDir, "blocked.key").delete()
+    }
 
     private fun fileFor(id: String) = downloader.fileFor(id)
 
@@ -49,24 +56,30 @@ class BlocklistRepository(context: Context) {
     fun buildMatcher(): DomainMatcher = loadMatcher()
 
     private fun loadMatcher(): DomainMatcher {
-        // The big lists live in the on-device database (a memory-mapped file, not the heap).
-        val inputs = buildList {
-            add(BlocklistIndex.Input("starter", "app${BuildConfig.VERSION_CODE}") { context.assets.open("starter_blocklist.txt").reader() })
-            if (settings.blockTrackers) {
-                add(BlocklistIndex.Input("starter_trackers", "app${BuildConfig.VERSION_CODE}") { context.assets.open("starter_trackers.txt").reader() })
-            }
-            for (id in activeSources().map { it.id }) {
-                val f = fileFor(id)
-                if (f.exists() && f.length() > 0) add(BlocklistIndex.Input(id, BlocklistIndex.version(f)) { f.reader() })
-            }
-        }
-        val database = index.get(inputs)
+        // The big lists live in on-device databases (memory-mapped files, not the heap), one per
+        // category so the dashboard can tell an ad from a tracker.
+        fun input(id: String): BlocklistIndex.Input? = fileFor(id).takeIf { it.exists() && it.length() > 0 }
+            ?.let { f -> BlocklistIndex.Input(id, BlocklistIndex.version(f)) { f.reader() } }
+        fun asset(id: String, name: String) =
+            BlocklistIndex.Input(id, "app${BuildConfig.VERSION_CODE}") { context.assets.open(name).reader() }
+        val active = activeSources()
+        fun inputsFor(vararg groups: SourceGroup) = active.filter { it.group in groups }.mapNotNull { input(it.id) }
+
+        val ads = adsIndex.get(listOf(asset("starter", "starter_blocklist.txt")) + inputsFor(SourceGroup.ADS))
+        val trackers = trackersIndex.get(
+            (if (settings.blockTrackers) listOf(asset("starter_trackers", "starter_trackers.txt")) else emptyList()) +
+                inputsFor(SourceGroup.TRACKERS)
+        )
+        val security = securityIndex.get(inputsFor(SourceGroup.SECURITY, SourceGroup.BYPASS))
         // Small lists that change often stay in memory: the user's own blocks and "Block Reels & Shorts".
         val extra = DomainSet()
         if (settings.blockShortVideos) ShortVideoRules.DOMAINS.forEach { extra.add(it) }
+        if (settings.blockSponsored) SponsoredRules.DOMAINS.forEach { extra.add(it) }
         ListParser.normalise(settings.customBlocklist).forEach { extra.add(it) }
         val allowed = DomainSet().apply { ListParser.normalise(settings.allowlist).forEach { add(it) } }
-        return DomainMatcher(arrayOf<DomainLookup>(database, extra), allowed)
+        // Checked in this order (BlockCategory.forLookup's order): the big ad lists also carry many
+        // trackers, so threats and trackers go first and each block lands in its truest category.
+        return DomainMatcher(arrayOf<DomainLookup>(extra, security, trackers, ads), allowed)
             .withGeneratedDomainBlocking(settings.blockGenerated)
             .also {
                 VpnState.setListSize(it.size())
@@ -102,7 +115,8 @@ class BlocklistRepository(context: Context) {
         private val indexes = HashMap<String, BlocklistIndex>()
 
         /** One database per folder, shared by every repository (the VPN, the settings screen…). */
-        @Synchronized internal fun sharedIndex(dir: File) = indexes.getOrPut(dir.absolutePath) { BlocklistIndex(dir) }
+        @Synchronized internal fun sharedIndex(dir: File, name: String) =
+            indexes.getOrPut("${dir.absolutePath}/$name") { BlocklistIndex(dir, name) }
         /** Ad networks rotate domains constantly and the lists update daily or more. */
         internal const val STALE_MS = 12L * 60 * 60 * 1000
         internal const val STALE_METERED_MS = 2L * 24 * 60 * 60 * 1000

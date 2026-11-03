@@ -13,6 +13,12 @@
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- Self-updates from GitHub Releases (the app isn't distributed through Google Play). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- "Uninstall add-on" opens Android's uninstall screen for the add-on (Android 9+ needs this). -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- The Stats tab and "Block apps' internet" name the app behind each look-up, including
+         apps without a launcher icon. Names are looked up on the phone and never leave it. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
     <!-- An ad blocker shouldn't read advertising IDs or do ad attribution: Firebase Analytics adds
          these permissions, so remove them (and the matching collection flags are off below). -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove" />

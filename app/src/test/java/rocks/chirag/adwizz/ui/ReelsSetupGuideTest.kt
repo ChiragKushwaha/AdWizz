@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
-/** The illustrated steps for switching the Reels Blocker add-on on. */
+/** The illustrated steps for switching the AdWizz add-on on. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35], qualifiers = "w411dp-h1600dp")
@@ -33,8 +33,8 @@ class ReelsSetupGuideTest : UiTestBase() {
         rule.onNodeWithText("Allow restricted settings", useUnmergedTree = true).assertExists()
         rule.onNodeWithText("⋮", useUnmergedTree = true).assertExists()
         rule.onNodeWithContentDescription("Accessibility settings showing the Restricted setting message").assertExists()
-        rule.onNodeWithContentDescription("App info for AdWizz Reels Blocker", substring = true).assertExists()
-        rule.onNodeWithContentDescription("Accessibility, Installed apps: turn on AdWizz Reels Blocker").assertExists()
+        rule.onNodeWithContentDescription("App info for AdWizz Add-on", substring = true).assertExists()
+        rule.onNodeWithContentDescription("Accessibility, Installed apps: turn on AdWizz Add-on").assertExists()
     }
 
     @Test fun buttonsOpenTheRightSettings() {

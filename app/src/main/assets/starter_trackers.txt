@@ -40,3 +40,6 @@ ads.pinterest.com
 ct.pinterest.com
 analytics.yahoo.com
 ads.yahoo.com
+google-analytics.com
+ssl.google-analytics.com
+googletagmanager.com

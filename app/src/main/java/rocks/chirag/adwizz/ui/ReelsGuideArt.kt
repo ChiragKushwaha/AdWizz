@@ -65,7 +65,7 @@ private fun MockRow(label: String, on: Boolean?, highlighted: Boolean = false, d
 /** Step 1: Accessibility → the add-on → Android's "Restricted setting" message. */
 @Composable
 internal fun MockRestricted() = MockScreen(tr("guide.mock_a11y"), tr("guide.a11y_mock1")) {
-    MockRow("AdWizz Reels Blocker", on = false, dim = true)
+    MockRow("AdWizz Add-on", on = false, dim = true)
     Column(
         Modifier.fillMaxWidth().padding(top = 4.dp)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(8.dp)).padding(8.dp)
@@ -80,7 +80,7 @@ internal fun MockRestricted() = MockScreen(tr("guide.mock_a11y"), tr("guide.a11y
 @Composable
 internal fun MockAllowRestricted() = MockScreen(tr("guide.mock_info"), tr("guide.a11y_mock2"), menu = true) {
     Row {
-        Text("AdWizz Reels Blocker", fontSize = 11.sp, modifier = Modifier.weight(1f))
+        Text("AdWizz Add-on", fontSize = 11.sp, modifier = Modifier.weight(1f))
         Column(
             Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(6.dp)).padding(2.dp)
         ) { MockRow(tr("guide.mock_allow"), on = null, highlighted = true) }
@@ -90,5 +90,5 @@ internal fun MockAllowRestricted() = MockScreen(tr("guide.mock_info"), tr("guide
 /** Step 3: Accessibility → Installed apps → the add-on, switched on. */
 @Composable
 internal fun MockTurnOn() = MockScreen(tr("guide.mock_installed"), tr("guide.a11y_mock3")) {
-    MockRow("AdWizz Reels Blocker", on = true, highlighted = true)
+    MockRow("AdWizz Add-on", on = true, highlighted = true)
 }

@@ -9,8 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import rocks.chirag.adwizz.data.Settings
+import rocks.chirag.adwizz.focus.FocusStateProvider
 import kotlin.reflect.KMutableProperty1
 
 /** The protection switches. Bypass needs a tunnel rebuild; the others just reload the lists. */
@@ -23,6 +25,8 @@ internal fun ProtectionSection() {
         tr("settings.bypass_desc")) { restartVpnIfRunning(context) }
     SettingSwitch(settings, Settings::blockTrackers, tr("settings.trackers"),
         tr("settings.trackers_desc")) { reload(context) }
+    SettingSwitch(settings, Settings::blockSponsored, tr("settings.sponsored"),
+        tr("settings.sponsored_desc")) { reload(context); FocusStateProvider.notifyChanged(context) }
     SettingSwitch(settings, Settings::blockGenerated, tr("settings.generated"),
         tr("settings.generated_desc")) { reload(context) }
     SettingSwitch(settings, Settings::blockMalicious, tr("settings.malicious"),
@@ -69,6 +73,32 @@ internal fun ExcludedAppsSection() {
             excluded = chosen
             settings.excludedApps = chosen
             restartVpnIfRunning(context)   // excluded apps are part of the tunnel setup
+        })
+    }
+}
+
+/**
+ * "Block apps' internet": every look-up these apps make is blocked, so they can't reach their
+ * servers (apps that connect by IP address alone can still get through: this works over DNS).
+ */
+@Composable
+internal fun FirewallSection() {
+    val context = LocalContext.current
+    val settings = remember { Settings(context) }
+    var apps by remember { mutableStateOf(settings.firewalledApps) }
+    var picking by rememberSaveable { mutableStateOf(false) }
+
+    SectionTitle(tr("firewall.title"))
+    Text(tr("firewall.desc"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    OutlinedButton(onClick = { picking = true }, modifier = Modifier.padding(top = 8.dp).testTag("firewallButton")) {
+        Text(if (apps.isEmpty()) tr("settings.choose_apps") else tr("firewall.count", "count" to apps.size))
+    }
+    if (picking) {
+        AppPickerDialog(initial = apps, onDismiss = { picking = false }, onSave = { chosen ->
+            picking = false
+            apps = chosen
+            settings.firewalledApps = chosen
+            reload(context)
         })
     }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Publishes the "AdWizz Reels Blocker" add-on (the :focus module) to its own GitHub release and
-# adds it to docs/update.json, where AdWizz looks for it when the user turns on
-# "Block Reels & Shorts". Run it only when the add-on changed:
+# Publishes the "AdWizz Add-on" (the :focus module: Reels & Shorts, YouTube ad skipping, Spotify
+# ad muting, sponsored cards) to its own GitHub release and adds it to docs/update.json, where
+# AdWizz looks for it. Run it only when the add-on changed:
 #
 #   1. Bump versionCode (+1) and versionName in focus/build.gradle.kts
 #   2. scripts/release-addon.sh
@@ -41,12 +41,12 @@ json.dump(m, open("docs/update.json", "w"), indent=2)
 PY
 
 git add docs/update.json
-git commit -m "Release Reels Blocker add-on $NAME"
-git tag -a "$TAG" -m "AdWizz Reels Blocker $NAME"
+git commit -m "Release AdWizz Add-on $NAME"
+git tag -a "$TAG" -m "AdWizz Add-on $NAME"
 git push origin HEAD "$TAG"
 # Not "latest": the site's download button must keep pointing at AdWizz itself.
-gh release create "$TAG" "$APK" --repo "$REPO" --title "AdWizz Reels Blocker $NAME" --latest=false --notes \
-  "Optional add-on for AdWizz's \"Block Reels & Shorts\" switch. You don't need to download this: AdWizz installs it for you when you turn the switch on.
+gh release create "$TAG" "$APK" --repo "$REPO" --title "AdWizz Add-on $NAME" --latest=false --notes \
+  "Optional add-on for AdWizz: blocks Reels & Shorts, skips YouTube ads, mutes Spotify ads and covers sponsored cards. You don't need to download this: AdWizz installs (and updates) it for you.
 
 **SHA-256:** \`$SHA\`"
 echo "Published add-on $NAME. AdWizz will offer it once GitHub Pages refreshes docs/update.json."

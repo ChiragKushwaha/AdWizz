@@ -47,7 +47,19 @@ class ShortVideoRulesTest {
     @Test fun accessibilityConfigListsEveryWatchedPackage() {
         val xml = File("src/main/res/xml/short_video_blocker.xml").readText()
         val listed = Regex("android:packageNames=\"([^\"]*)\"").find(xml)!!.groupValues[1].split(',').toSet()
-        val watched = ShortVideoRules.SCREEN_IDS.keys + ShortVideoRules.WHOLE_APPS + ShortVideoRules.BROWSER_URL_IDS.keys
+        val watched = ShortVideoRules.SCREEN_IDS.keys + ShortVideoRules.WHOLE_APPS + ShortVideoRules.BROWSER_URL_IDS.keys +
+            AdRules.YOUTUBE_PACKAGES
         assertEquals(watched, listed)
+    }
+}
+
+class SponsoredLabelTest {
+    @Test fun recognisesSponsoredLabelsOnly() {
+        listOf("Sponsored", "Sponsored · Google", " Sponsored ", "Gesponsert", "प्रायोजित",
+            "Sponsored – Exclusive festive offers\nThe biggest deals on Nothing smartphones this year.\nNOTHING").forEach {
+            assertTrue(it, AdRules.isSponsoredLabel(it))
+        }
+        listOf(null, "", "I got sponsored by a phone brand", "Sponsored video review of the best phones of 2026", "Sponsoredness",
+            "Sponsorship deals explained").forEach { assertFalse("$it", AdRules.isSponsoredLabel(it)) }
     }
 }

@@ -17,13 +17,17 @@ internal fun SettingsTab() {
         item { AppearanceSection() }
         item { DnsSection() }
         item { ProtectionSection() }
+        item { HttpsSection() }
         item { ShortVideoSection() }
+        item { AddonSection() }
+        item { FirewallSection() }
         item { ExcludedAppsSection() }
         item { BlocklistSection() }
         item { AllowlistSection() }
         item { CustomBlocklistSection() }
         item { UpdatesSection() }
         item { KeepAliveSection() }
+        item { UninstallSection() }
         item { Spacer(Modifier.height(24.dp)) }
     }
 }

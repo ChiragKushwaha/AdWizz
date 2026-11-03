@@ -50,16 +50,16 @@ class ShortVideoSectionTest : UiTestBase() {
     @Test fun turningOnWithoutTheAddonOffersToInstallIt() {
         show()
         rule.onNodeWithTag(switch).performClick()
-        rule.onNodeWithText("Install the Reels Blocker add-on?").assertIsDisplayed()
+        rule.onNodeWithText("Install the AdWizz add-on?").assertIsDisplayed()
         rule.onNodeWithText("Not now").performClick()
-        rule.onNodeWithText("Install the Reels Blocker add-on?").assertDoesNotExist()
+        rule.onNodeWithText("Install the AdWizz add-on?").assertDoesNotExist()
         assertFalse(Settings(ctx).blockShortVideos)
     }
 
     @Test fun switchOnWithoutTheAddonShowsInstallButton() {
         Settings(ctx).blockShortVideos = true
         show()
-        rule.onNodeWithText("Needs the Reels Blocker add-on.").assertExists()
+        rule.onNodeWithText("Needs the AdWizz add-on.").assertExists()
         rule.onNodeWithText("Install add-on").assertExists()
     }
 
@@ -67,9 +67,9 @@ class ShortVideoSectionTest : UiTestBase() {
         Settings(ctx).blockShortVideos = true
         FocusAddon.setStateForTest(AddonState.Downloading(0.4f))
         show()
-        rule.onNodeWithText("Downloading the Reels Blocker add-on… 40%").assertExists()
+        rule.onNodeWithText("Downloading the AdWizz add-on… 40%").assertExists()
         FocusAddon.setStateForTest(AddonState.Installing)
-        rule.onNodeWithText("Installing the Reels Blocker add-on…").assertExists()
+        rule.onNodeWithText("Installing the AdWizz add-on…").assertExists()
     }
 
     @Test fun explainsPlayProtectBlocks() {
@@ -99,7 +99,7 @@ class ShortVideoSectionTest : UiTestBase() {
         installAddon()
         show()
         rule.onNodeWithTag(switch).performClick()
-        rule.onNodeWithText("Allow the Reels Blocker to see which screen is open?").assertIsDisplayed()
+        rule.onNodeWithText("Allow the AdWizz add-on to see which screen is open?").assertIsDisplayed()
         rule.onNodeWithText("Show me how").performClick()
         assertTrue(Settings(ctx).blockShortVideos)
         rule.onNodeWithTag("reelsGuide").assertExists()
@@ -111,7 +111,7 @@ class ShortVideoSectionTest : UiTestBase() {
         rule.onNodeWithTag(switch).performClick()
         assertTrue(Settings(ctx).blockShortVideos)
         rule.onNodeWithTag("reelsGuide").assertDoesNotExist()
-        rule.onNodeWithText("Install the Reels Blocker add-on?").assertDoesNotExist()
+        rule.onNodeWithText("Install the AdWizz add-on?").assertDoesNotExist()
         rule.onNodeWithTag(switch).performClick()
         assertFalse(Settings(ctx).blockShortVideos)
     }

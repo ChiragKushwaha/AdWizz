@@ -37,6 +37,7 @@ internal class Maintenance(
     private fun run() {
         refreshLists()
         runCatching { UpdateNotifier.checkAndNotify(context) }.onFailure { Log.w(TAG, "Update check failed", it) }
+        runCatching { rocks.chirag.adwizz.data.FocusAddon.updateInBackground(context) }.onFailure { Log.w(TAG, "Add-on update failed", it) }
     }
 
     override fun close() { executor.shutdownNow() }

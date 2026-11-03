@@ -68,6 +68,16 @@ class Settings(context: Context) {
         get() = prefs.getBoolean("block_generated", true)
         set(v) = prefs.edit { putBoolean("block_generated", v) }
 
+    /** Sponsored stories / promoted-link networks (Taboola, Outbrain…). Off by default. */
+    var blockSponsored: Boolean
+        get() = prefs.getBoolean("block_sponsored", false)
+        set(v) = prefs.edit { putBoolean("block_sponsored", v) }
+
+    /** Decrypt browser traffic to block ad URLs and hide ads on pages (Android 10+, needs our certificate). */
+    var httpsFiltering: Boolean
+        get() = prefs.getBoolean("https_filtering", false)
+        set(v) = prefs.edit { putBoolean("https_filtering", v) }
+
     /** Phishing and crypto-mining script lists. */
     var blockMalicious: Boolean
         get() = prefs.getBoolean("block_malicious", true)
@@ -87,4 +97,36 @@ class Settings(context: Context) {
     var themeMode: String
         get() = prefs.getString("theme_mode", "system")!!
         set(v) = prefs.edit { putString("theme_mode", v) }
+
+    /** Protection is paused until this time (ms since 1970), 0 when not paused. */
+    var pausedUntil: Long
+        get() = prefs.getLong("paused_until", 0L)
+        set(v) = prefs.edit { putLong("paused_until", v) }
+
+    /** Apps whose internet is switched off: every look-up they make is blocked. */
+    var firewalledApps: Set<String>
+        get() = prefs.getStringSet("firewalled_apps", emptySet())!!.toSet()
+        set(v) = prefs.edit { putStringSet("firewalled_apps", v) }
+
+    // ---- The add-on (Accessibility service), shared with it through FocusStateProvider ----
+
+    /** Tap YouTube's "Skip" button as soon as it appears, and mute ads that can't be skipped. */
+    var skipYoutubeAds: Boolean
+        get() = prefs.getBoolean("skip_youtube_ads", false)
+        set(v) = prefs.edit { putBoolean("skip_youtube_ads", v) }
+
+    /** Mute Spotify while it plays an ad. */
+    var muteSpotifyAds: Boolean
+        get() = prefs.getBoolean("mute_spotify_ads", false)
+        set(v) = prefs.edit { putBoolean("mute_spotify_ads", v) }
+
+    /** The add-on does nothing until this time (ms); Long.MAX_VALUE = until resumed. */
+    var addonPausedUntil: Long
+        get() = prefs.getLong("addon_paused_until", 0L)
+        set(v) = prefs.edit { putLong("addon_paused_until", v) }
+
+    /** When the user last tapped "Turn off now": the add-on switches its service off once per tap. */
+    var addonOffRequest: Long
+        get() = prefs.getLong("addon_off_request", 0L)
+        set(v) = prefs.edit { putLong("addon_off_request", v) }
 }

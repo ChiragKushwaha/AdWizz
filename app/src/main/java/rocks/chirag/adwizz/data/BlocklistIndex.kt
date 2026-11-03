@@ -11,9 +11,9 @@ import java.io.Reader
  * It's rebuilt only when something it was built from changes (a list was re-downloaded, or a
  * list was switched on/off); otherwise the saved file is opened as-is, which is instant.
  */
-internal class BlocklistIndex(private val dir: File) {
-    private val file = File(dir, "blocked.idx")
-    private val keyFile = File(dir, "blocked.key")
+internal class BlocklistIndex(private val dir: File, name: String = "blocked") {
+    private val file = File(dir, "$name.idx")
+    private val keyFile = File(dir, "$name.key")
     private var current: Pair<String, DomainIndex>? = null
 
     /** One input to the index: a name plus how to read it. */

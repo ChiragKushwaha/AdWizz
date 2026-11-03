@@ -24,8 +24,8 @@ android {
         applicationId = "rocks.chirag.adwizz"
         minSdk = 24  // Android 7.0: Firebase Analytics 24+ requires it
         targetSdk = 37
-        versionCode = 8
-        versionName = "1.4.0"
+        versionCode = 9
+        versionName = "1.5.0"
         // Phones (and Apple-silicon emulators) are ARM; x86 builds would only add size.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
         // The optional "AdWizz Reels Blocker" add-on (the :focus module).

@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import rocks.chirag.adwizz.R
 import rocks.chirag.adwizz.core.DomainMatcher
+import rocks.chirag.adwizz.data.BlockStats
 import rocks.chirag.adwizz.data.BlocklistRepository
 import rocks.chirag.adwizz.data.Settings
 import rocks.chirag.adwizz.data.Status
@@ -22,9 +23,11 @@ class AdBlockVpnService : VpnService() {
     private lateinit var repo: BlocklistRepository
     private val upstream = UpstreamDns { protect(it) }
     @Volatile private var matcher = DomainMatcher(emptySet(), emptySet())
+    @Volatile private var firewalled: Set<String> = emptySet()
 
     private var tun: ParcelFileDescriptor? = null
     private var pump: PacketPump? = null
+    private var https: Any? = null   // HttpsProxy, Android 10+ only
     private var maintenance: Maintenance? = null
     private var network: NetworkWatcher? = null
     @Volatile private var starting = false
@@ -33,6 +36,8 @@ class AdBlockVpnService : VpnService() {
         super.onCreate()
         settings = Settings(this)
         repo = BlocklistRepository(this)
+        BlockStats.init(this)
+        VpnState.setPausedUntil(settings.pausedUntil)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -72,17 +77,44 @@ class AdBlockVpnService : VpnService() {
     }
 
     private fun establish() {
-        val pfd = Builder().configureForDns(getString(R.string.app_name), settings, packageName, VpnNotification.openApp(this))
+        val proxyPort = if (settings.httpsFiltering && android.os.Build.VERSION.SDK_INT >= 29) startHttps() else null
+        val pfd = Builder().configureForDns(getString(R.string.app_name), settings, packageName, VpnNotification.openApp(this), proxyPort)
             .establish() ?: throw IllegalStateException("VPN permission not granted")
         tun = pfd
-        pump = PacketPump(pfd, { matcher }, upstream).also { it.start() }
+        val apps = AppResolver(getSystemService(ConnectivityManager::class.java)) { packageManager.getPackagesForUid(it) }
+        pump = PacketPump(pfd, { matcher }, upstream, apps::packageFor) { firewalled }.also { it.start() }
         VpnState.resetSession()
         VpnState.setStatus(Status.RUNNING)
         TileUpdater.request(this)
     }
 
+    /** Starts HTTPS filtering's proxy; it checks hosts against the same blocklists as DNS. */
+    @androidx.annotation.RequiresApi(29)
+    private fun startHttps(): Int? = runCatching {
+        val proxy = rocks.chirag.adwizz.https.HttpsProxy(
+            rocks.chirag.adwizz.https.CertAuthority(applicationContext),
+            blocked = { host ->
+                if (VpnState.isPaused()) false
+                else {
+                    val category = rocks.chirag.adwizz.data.BlockCategory.forLookup(matcher.blockedBy(host))
+                    VpnState.record(host, category != null, null, category)
+                    BlockStats.record(null, host, category)
+                    category != null
+                }
+            },
+            onAdUrl = { host ->
+                VpnState.record(host, true, null, rocks.chirag.adwizz.data.BlockCategory.ADS)
+                BlockStats.record(null, "$host (ad URL)", rocks.chirag.adwizz.data.BlockCategory.ADS)
+            },
+        )
+        proxy.start()
+        https = proxy
+        proxy.port
+    }.onFailure { Log.e(TAG, "HTTPS filtering failed to start", it) }.getOrNull()
+
     private fun reloadConfig() {
         matcher = repo.buildMatcher()
+        firewalled = settings.firewalledApps
         upstream.configure(settings)
         upstream.refreshNetworkDns(getSystemService(ConnectivityManager::class.java))
         Log.i(TAG, "Loaded ${matcher.size()} blocked domains, $upstream")
@@ -92,6 +124,9 @@ class AdBlockVpnService : VpnService() {
         if (tun != null) settings.lifetimeBlocked += VpnState.stats.value.blocked
         network?.close(); network = null
         pump?.stop(); pump = null
+        if (android.os.Build.VERSION.SDK_INT >= 29) (https as? rocks.chirag.adwizz.https.HttpsProxy)?.stop()
+        https = null
+        Thread { BlockStats.save() }.start()
         maintenance?.close(); maintenance = null
         runCatching { tun?.close() }; tun = null
         if (!stopService) return

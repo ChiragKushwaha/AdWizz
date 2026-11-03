@@ -47,11 +47,23 @@ public final class DomainMatcher {
         return n;
     }
 
+    /** Returned by {@link #blockedBy} for a machine-generated name no list has yet. */
+    public static final int GENERATED = Integer.MAX_VALUE;
+    public static final int NOT_BLOCKED = -1;
+
     public boolean isBlocked(String domain) {
-        if (domain == null || domain.isEmpty()) return false;
-        if (matches(allowed, domain)) return false;
-        for (DomainLookup b : blocked) if (matches(b, domain)) return true;
-        return blockGenerated && GeneratedDomain.looksGenerated(domain);
+        return blockedBy(domain) != NOT_BLOCKED;
+    }
+
+    /**
+     * Which list blocks [domain]: its position in the lookups given to the constructor (checked in
+     * that order), {@link #GENERATED}, or {@link #NOT_BLOCKED}. Lets the app tell ads from trackers.
+     */
+    public int blockedBy(String domain) {
+        if (domain == null || domain.isEmpty()) return NOT_BLOCKED;
+        if (matches(allowed, domain)) return NOT_BLOCKED;
+        for (int i = 0; i < blocked.length; i++) if (matches(blocked[i], domain)) return i;
+        return blockGenerated && GeneratedDomain.looksGenerated(domain) ? GENERATED : NOT_BLOCKED;
     }
 
     /** True if the domain or a parent is on the allowlist. */

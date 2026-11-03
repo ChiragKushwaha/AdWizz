@@ -7,7 +7,14 @@ import kotlinx.coroutines.flow.update
 
 enum class Status { STOPPED, STARTING, RUNNING, ERROR }
 
-data class QueryLog(val domain: String, val blocked: Boolean, val time: Long)
+/** One look-up in Recent activity. [app] is the package that asked (null if unknown). */
+data class QueryLog(
+    val domain: String,
+    val blocked: Boolean,
+    val time: Long,
+    val app: String? = null,
+    val category: BlockCategory? = null,
+)
 
 data class Stats(
     val queries: Long = 0,
@@ -48,12 +55,18 @@ object VpnState {
         _log.value = emptyList()
     }
 
-    fun record(domain: String, blocked: Boolean) {
+    /** Protection paused until this time (ms), or 0. Look-ups pass through unfiltered meanwhile. */
+    private val _pausedUntil = MutableStateFlow(0L)
+    val pausedUntil: StateFlow<Long> = _pausedUntil.asStateFlow()
+    fun isPaused(now: Long = System.currentTimeMillis()) = _pausedUntil.value > now
+    fun setPausedUntil(until: Long) { _pausedUntil.value = until }
+
+    fun record(domain: String, blocked: Boolean, app: String? = null, category: BlockCategory? = null) {
         _stats.update { it.copy(queries = it.queries + 1, blocked = it.blocked + if (blocked) 1 else 0) }
         _log.update { old ->
             // Collapse immediate repeats (apps often fire A + AAAA + HTTPS for the same name).
-            if (old.isNotEmpty() && old[0].domain == domain && old[0].blocked == blocked) old
-            else (listOf(QueryLog(domain, blocked, System.currentTimeMillis())) + old).take(LOG_CAP)
+            if (old.isNotEmpty() && old[0].domain == domain && old[0].blocked == blocked && old[0].app == app) old
+            else (listOf(QueryLog(domain, blocked, System.currentTimeMillis(), app, category)) + old).take(LOG_CAP)
         }
     }
 }

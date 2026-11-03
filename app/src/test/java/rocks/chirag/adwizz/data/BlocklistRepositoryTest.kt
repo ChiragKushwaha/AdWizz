@@ -57,6 +57,30 @@ class BlocklistRepositoryTest {
         assertTrue(m.size() > 150)
     }
 
+    @Test fun blocksAreSortedIntoAdsTrackersAndThreats() {
+        val m = repo.buildMatcher()
+        fun category(d: String) = BlockCategory.forLookup(m.blockedBy(d))
+        assertEquals(BlockCategory.ADS, category("pagead2.googlesyndication.com"))
+        assertEquals(BlockCategory.TRACKERS, category("www.googletagmanager.com"))   // on both lists: tracker wins
+        assertEquals(BlockCategory.TRACKERS, category("sb.scorecardresearch.com"))
+        assertNull(category("example.com"))
+        settings.customBlocklist = setOf("my-own.example")
+        assertEquals(BlockCategory.ADS, BlockCategory.forLookup(repo.buildMatcher().blockedBy("x.my-own.example")))
+    }
+
+    @Test fun sponsoredContentFollowsItsSwitch() {
+        settings.blockSponsored = false
+        assertFalse(repo.buildMatcher().isBlocked("cdn.zergnet.com"))
+        assertFalse(repo.buildMatcher().isBlocked("s.ntv.io"))
+        settings.blockSponsored = true
+        val m = repo.buildMatcher()
+        assertTrue(m.isBlocked("cdn.zergnet.com"))
+        assertTrue(m.isBlocked("s.ntv.io"))
+        assertTrue(m.isBlocked("cdn.taboola.com"))
+        assertEquals(BlockCategory.ADS, BlockCategory.forLookup(m.blockedBy("cdn.zergnet.com")))
+        assertFalse(m.isBlocked("news.yahoo.com"))   // only Yahoo's sponsored-post server
+    }
+
     @Test fun trackerStarterListFollowsSwitch() {
         settings.blockTrackers = true
         assertTrue(repo.buildMatcher().isBlocked("google-analytics.com"))

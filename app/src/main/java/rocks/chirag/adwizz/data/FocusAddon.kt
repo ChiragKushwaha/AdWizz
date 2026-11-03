@@ -24,7 +24,7 @@ sealed interface AddonState {
 }
 
 /**
- * The optional "AdWizz Reels Blocker" add-on. It holds the Accessibility service that leaves
+ * The optional "AdWizz Add-on" add-on. It holds the Accessibility service that leaves
  * Reels and Shorts. That service lives in its own app because Play Protect blocks any downloaded
  * app that can use Accessibility, and AdWizz itself shouldn't be blocked for it.
  * AdWizz downloads it from the same GitHub release, checks it's signed with AdWizz's own key,
@@ -38,6 +38,10 @@ object FocusAddon {
     private val _state = MutableStateFlow<AddonState>(AddonState.Idle)
     val state: StateFlow<AddonState> = _state.asStateFlow()
 
+    /** The newest add-on on GitHub, once [checkLatest] has run. */
+    private val _latest = MutableStateFlow<AddonInfo?>(null)
+    val latest: StateFlow<AddonInfo?> = _latest.asStateFlow()
+
     /** Bumped when an install finishes, so screens re-check [isInstalled]. */
     private val _installs = MutableStateFlow(0)
     val installs: StateFlow<Int> = _installs.asStateFlow()
@@ -50,6 +54,11 @@ object FocusAddon {
 
     fun isInstalled(context: Context) = installedVersion(context) != null
 
+    /** e.g. "1.1.0", or null when the add-on isn't installed. */
+    fun installedVersionName(context: Context): String? = runCatching {
+        context.packageManager.getPackageInfo(PACKAGE, 0).versionName ?: "?"
+    }.getOrNull()
+
     /** True if the user has turned the add-on's service on in Accessibility settings. */
     fun isServiceEnabled(context: Context): Boolean {
         val enabled = AndroidSettings.Secure.getString(
@@ -58,6 +67,35 @@ object FocusAddon {
         return enabled.split(':').any { ComponentName.unflattenFromString(it) == SERVICE }
     }
 
+    /** Looks up the newest add-on version. Blocking; null if offline. */
+    fun checkLatest(): AddonInfo? = runCatching {
+        UpdateManifest.parseAddon(UpdateDownload.text(UpdateManifest.URL, 64 * 1024))
+    }.getOrNull()?.also { _latest.value = it }
+
+    /** True when a newer add-on than the installed one is known. */
+    fun updateAvailable(context: Context): Boolean {
+        val installed = installedVersion(context) ?: return false
+        return (_latest.value?.versionCode ?: 0) > installed
+    }
+
+    /**
+     * Daily, from the VPN's maintenance: updates an installed add-on in the background. Only on
+     * Android 12+, where AdWizz (the add-on's installer) can update it without a prompt.
+     */
+    @Volatile private var lastBackgroundCheck = 0L
+
+    fun updateInBackground(context: Context, now: Long = System.currentTimeMillis()) {
+        if (Build.VERSION.SDK_INT < 31 || !isInstalled(context) || !Updater.canInstall(context)) return
+        if (now - lastBackgroundCheck < 24 * 60 * 60 * 1000L) return
+        lastBackgroundCheck = now
+        checkLatest()
+        if (updateAvailable(context)) install(context)
+    }
+
+    /** Android's "Uninstall this app?" screen for the add-on. */
+    fun uninstallIntent(): Intent =
+        Intent(Intent.ACTION_DELETE, Uri.parse("package:$PACKAGE")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
     /** Downloads, verifies and installs the latest add-on (if it isn't installed or is older). Blocking. */
     fun install(context: Context) {
         val app = context.applicationContext
@@ -65,7 +103,7 @@ object FocusAddon {
         try {
             _state.value = AddonState.Downloading(0f)
             val info = UpdateManifest.parseAddon(UpdateDownload.text(UpdateManifest.URL, 64 * 1024))
-                ?: error(tr("addon.unavailable"))
+                ?.also { _latest.value = it } ?: error(tr("addon.unavailable"))
             if ((installedVersion(app) ?: 0) >= info.versionCode) { onInstalled(); return }
             val dir = File(app.cacheDir, "addon").apply { deleteRecursively(); mkdirs() }
             val apk = File(dir, "AdWizzFocus-${info.versionCode}.apk")

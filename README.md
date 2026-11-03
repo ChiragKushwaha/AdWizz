@@ -53,6 +53,12 @@ never arrive. 🪄
 | 🛡️ **Anti-dark-magic** | 2 million+ phishing, scam and malware domains, and crypto-mining scripts |
 | 🧱 **Bypass barrier** | Apps that sneak around your DNS (hard-coded Google/Cloudflare, DNS-over-HTTPS) get caught |
 | 🎬 **Scroll-stopper** | Optional add-on: backs out of Instagram Reels and YouTube Shorts, closes TikTok, Moj, Josh and Chingari |
+| ⏭️ **Ad skipper** | Optional add-on: taps YouTube's "Skip" the moment it appears, mutes unskippable YouTube ads and Spotify ads (with a guide to Spotify's "Device broadcast status") |
+| 🙈 **Sponsor vanish** | "Block sponsored content": Taboola, Outbrain and 20+ native-ad networks everywhere; with the add-on, sponsored cards in YouTube and Instagram are covered up |
+| 🔓 **X-ray vision** | Optional HTTPS filtering for browsers (Android 10+): blocks ad URLs, strips YouTube's ads on youtube.com (incognito too) and hides ad boxes on pages. AdWizz's own certificate, its key locked in the phone's secure hardware |
+| 📊 **Crystal ball** | Stats tab: ads, trackers and threats blocked per day and per app (Android 10+), most-blocked names. Counted on the phone only |
+| ⏸️ **Pause** | Pause blocking (or the add-on) for 5 min, 15 min, 1 hour or until you resume |
+| 🔌 **App jail** | Cut an app's internet off over DNS, from Settings or from its bar in Stats |
 | 🙈 **Invisibility cloak** | Exclude banking/streaming apps that refuse to run with a VPN |
 | 📡 **Share the magic** | A QR code sets up ad blocking on iPhones, Macs and laptops on your hotspot or Wi-Fi |
 | 🌍 **Polyglot** | The app and the website speak 40 languages and follow your phone's language |
@@ -141,6 +147,11 @@ sequenceDiagram
 | **DNS-bypass blocking** | Well-known public resolvers (8.8.8.8, 1.1.1.1…) are routed into the tunnel too: DNS to them is filtered, DoH/DoT is refused so apps fall back to plain DNS. DoH hostnames are on a blocklist, and Firefox's DoH canary gets NXDOMAIN | `TunnelSetup`, `ResolverLists`, `PacketPump` |
 | **Private DNS warning** | If Android's Private DNS skips the VPN, Home shows a warning | `HomeStatus` |
 | **Short-video blocker** | An Accessibility service backs out of Reels / Shorts screens (add-on app) | `focus/` module |
+| **Per-app attribution** | Android 10+ tells the active VPN which app owns each DNS socket (`getConnectionOwnerUid`) | `AppResolver` |
+| **Categories** | Three on-device databases (threats, trackers, ads), checked in that order, so each block is counted where it belongs | `BlocklistRepository`, `BlockCategory` |
+| **HTTPS filtering** | The VPN sets a local proxy (127.0.0.1) for browsers; a browser's connection is decrypted with a per-site certificate signed by AdWizz's CA (key in Android Keystore), filtered, and re-encrypted to the real site. Apps don't trust user CAs, so their traffic is tunnelled untouched | `https/` |
+| **Sponsored cards** | Add-on: finds "Sponsored" cards by their accessibility label and draws a panel over them (an Accessibility overlay), following scrolls | `SponsoredHider` |
+| **Video / audio ads** | Add-on: taps YouTube's skip button by view ID, mutes while an ad view is on screen; mutes Spotify when a song overruns its length without a new one announced (Spotify's "Device broadcast status") | `YoutubeAdSkipper`, `SpotifyAdDetector`, `AdMuter` |
 
 ### Blocklists → on-device database
 
@@ -215,7 +226,9 @@ flowchart LR
   (Arabic, Urdu, Persian, Hebrew) flip the layout automatically.
 - **Limits:** ads served from the *same* servers as the content (YouTube, Instagram feed ads, and
   the video ads stitched into Prime Video, JioHotstar and other streams) can't be separated by DNS —
-  no DNS blocker can. When an in-app banner is blocked, the app may leave an empty gap where it would
+  no DNS blocker can. The add-on skips and mutes YouTube and Spotify ads instead. HTTPS filtering
+  can't help there either: since Android 7 apps ignore user-installed certificates (and YouTube
+  and Spotify pin theirs), so it only filters browsers. When an in-app banner is blocked, the app may leave an empty gap where it would
   have been: AdWizz can't change another app's layout.
 
 ## 🔒 Privacy
@@ -224,8 +237,11 @@ No account, no servers of our own, and your browsing and DNS look-ups never leav
 blocklists and your Recent activity live only on your phone. AdWizz talks to the DNS server you choose,
 the public blocklist mirrors, this repo's website (to check for updates), and Google Firebase for
 anonymous usage statistics and crash reports (app opens, app version, device model). It never sends
-the sites or apps you use, and the advertising ID is turned off. The optional Reels & Shorts add-on
-only looks at Instagram, YouTube, short-video apps and browsers' address bars, and keeps nothing.
+the sites or apps you use, and the advertising ID is turned off. The Stats tab's per-day, per-app counts are kept in a file on
+the phone for 30 days and never sent anywhere. The optional add-on only looks at Instagram, YouTube,
+short-video apps and browsers' address bars, reads Spotify's own playback broadcasts, and keeps
+nothing. It pauses from AdWizz, and when AdWizz is uninstalled it switches itself off and asks to be
+uninstalled too.
 
 ---
 
@@ -300,6 +316,7 @@ flowchart TB
 
 | Path | What lives there |
 |---|---|
+| `https/` | HTTPS filtering: `HttpsProxy` (local proxy, CONNECT, tunnel), `MitmSession` (decrypted HTTP/1.1), `HttpsRules` (ad URLs, YouTube ad keys, hiding CSS), `CertAuthority` + `CertBuilder` + `Der` (our CA in Android Keystore, per-site certificates) |
 | `core/` | Plain Java, no Android: `IpPacket`/`IpBuilder`/`Bytes` (packets), `DnsMessage`/`DnsResponse` (DNS), `DomainIndex` (on-device blocklist database), `DomainSet` + `DomainHash` (small in-memory sets), `DomainMatcher`, `ListParser`, `GeneratedDomain` |
 | `vpn/` | `AdBlockVpnService` (lifecycle), `TunnelSetup` + `ResolverLists`, `PacketPump` (read → filter → answer), `UpstreamDns`, `NetworkWatcher`, `Maintenance`, notification, Quick Settings tile |
 | `data/` | `Settings`, `Sources`, `BlocklistRepository` + `BlocklistDownloader` + `BlocklistIndex`, `VpnState`, updater (`Updater`, `UpdateNotifier`, `ApkInstaller`), `FocusAddon` |

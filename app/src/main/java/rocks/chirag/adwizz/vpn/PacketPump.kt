@@ -8,6 +8,8 @@ import rocks.chirag.adwizz.core.DnsResponse
 import rocks.chirag.adwizz.core.DomainMatcher
 import rocks.chirag.adwizz.core.IpBuilder
 import rocks.chirag.adwizz.core.IpPacket
+import rocks.chirag.adwizz.data.BlockCategory
+import rocks.chirag.adwizz.data.BlockStats
 import rocks.chirag.adwizz.data.VpnState
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -25,6 +27,10 @@ internal class PacketPump(
     private val tun: ParcelFileDescriptor,
     private val matcher: () -> DomainMatcher,
     private val upstream: UpstreamDns,
+    /** Which app sent a query (null if Android can't tell us). */
+    private val appOf: (IpPacket) -> String? = { null },
+    /** Apps whose internet is switched off. */
+    private val firewalled: () -> Set<String> = { emptySet() },
 ) {
     private val out = FileOutputStream(tun.fileDescriptor)
     private val workers = ThreadPoolExecutor(4, 32, 30, TimeUnit.SECONDS, ArrayBlockingQueue(1024), ThreadPoolExecutor.DiscardOldestPolicy())
@@ -63,31 +69,44 @@ internal class PacketPump(
     }
 
     private fun answer(pkt: IpPacket) {
-        val response = respond(pkt.payload) ?: return
+        val response = respond(pkt) ?: return
         write(IpBuilder.udp(pkt.dstAddr, pkt.srcAddr, 53, pkt.srcPort, response))
     }
 
-    private fun respond(payload: ByteArray): ByteArray? {
+    private fun respond(pkt: IpPacket): ByteArray? {
+        val payload = pkt.payload
         val query = DnsMessage.parseQuery(payload) ?: return upstream.forward(payload)
-        val m = matcher()
         if (query.qname in DOH_CANARIES) return DnsMessage.nxDomain(payload, query)
-        if (m.isBlocked(query.qname)) return decided(query.qname, true) { DnsMessage.blockedResponse(payload, query) }
+        // Paused: everything goes through unfiltered (and isn't counted).
+        if (VpnState.isPaused()) return upstream.forward(payload) ?: DnsMessage.servFail(payload, query)
+        // Ask before forwarding: the app's socket is still open while it waits for this answer.
+        val app = appOf(pkt)
+        if (app != null && app in firewalled()) {
+            return decided(query.qname, app, BlockCategory.FIREWALL) { DnsMessage.blockedResponse(payload, query) }
+        }
+        val m = matcher()
+        BlockCategory.forLookup(m.blockedBy(query.qname))?.let { category ->
+            return decided(query.qname, app, category) { DnsMessage.blockedResponse(payload, query) }
+        }
         val answer = upstream.forward(payload)
         // CNAME cloaking: "metrics.news-site.com" may just be an alias for an ad/tracker domain.
-        val cloaked = answer != null && !m.isAllowed(query.qname) && DnsResponse.cnameTargets(answer).any { m.isBlocked(it) }
-        return decided(query.qname, cloaked) {
+        val cloakedBy = if (answer == null || m.isAllowed(query.qname)) null
+        else DnsResponse.cnameTargets(answer).firstNotNullOfOrNull { BlockCategory.forLookup(m.blockedBy(it)) }
+        return decided(query.qname, app, cloakedBy) {
             when {
-                cloaked -> DnsMessage.blockedResponse(payload, query)
+                cloakedBy != null -> DnsMessage.blockedResponse(payload, query)
                 answer != null -> answer
                 else -> DnsMessage.servFail(payload, query)
             }
         }
     }
 
-    /** Records the decision for the Recent activity list (and the debug log used by the device test). */
-    private inline fun decided(name: String, blocked: Boolean, response: () -> ByteArray): ByteArray {
-        VpnState.record(name, blocked)
-        if (BuildConfig.DEBUG) Log.d(DNS_LOG_TAG, (if (blocked) "BLOCK " else "ALLOW ") + name)
+    /** Records the decision for Recent activity, the Stats tab and the debug log used by the device test. */
+    private inline fun decided(name: String, app: String?, category: BlockCategory?, response: () -> ByteArray): ByteArray {
+        val blocked = category != null
+        VpnState.record(name, blocked, app, category)
+        BlockStats.record(app, name, category)
+        if (BuildConfig.DEBUG) Log.d(DNS_LOG_TAG, (if (blocked) "BLOCK " else "ALLOW ") + name + " " + (app ?: ""))
         return response()
     }
 

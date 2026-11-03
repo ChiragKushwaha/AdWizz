@@ -80,3 +80,57 @@ class FocusSwitchTest {
         assertFalse(s.on)
     }
 }
+
+/** AdWizz 1.5+ sends more columns: ad skipping, Spotify muting and pauses. */
+class FakeFullProvider : ContentProvider() {
+    companion object { @Volatile var row = arrayOf<Any>(0, 1, 1, 0L, 0L) }
+    override fun onCreate() = true
+    override fun query(uri: Uri, p: Array<out String>?, s: String?, a: Array<out String>?, o: String?): Cursor =
+        MatrixCursor(arrayOf("enabled", "skip_youtube_ads", "mute_spotify_ads", "paused_until", "off_request")).apply { addRow(row) }
+    override fun getType(uri: Uri): String? = null
+    override fun insert(uri: Uri, values: ContentValues?): Uri? = null
+    override fun update(uri: Uri, v: ContentValues?, s: String?, a: Array<out String>?) = 0
+    override fun delete(uri: Uri, s: String?, a: Array<out String>?) = 0
+}
+
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [35])
+class FocusConfigTest {
+    private val ctx: Context = ApplicationProvider.getApplicationContext()
+    private fun install() = Robolectric.buildContentProvider(FakeFullProvider::class.java)
+        .create(ProviderInfo().apply { authority = FocusSwitch.URI.authority }).get()
+
+    @Test fun readsEveryFeature() {
+        install()
+        FakeFullProvider.row = arrayOf(0, 1, 1, 0L, 0L)
+        val s = FocusSwitch(ctx).also { it.start() }
+        assertFalse(s.on)
+        assertTrue(s.skipYoutubeAds && s.muteSpotifyAds && s.reachable)
+        assertTrue(s.active())
+        s.stop()
+    }
+
+    @Test fun pausedMeansInactiveUntilThePauseEnds() {
+        install()
+        FakeFullProvider.row = arrayOf(1, 1, 0, 5_000L, 0L)
+        val s = FocusSwitch(ctx).also { it.start() }
+        assertFalse(s.active(now = 4_000))
+        assertTrue(s.active(now = 6_000))
+        s.stop()
+    }
+
+    @Test fun nothingOnMeansInactive() {
+        install()
+        FakeFullProvider.row = arrayOf(0, 0, 0, 0L, 0L)
+        val s = FocusSwitch(ctx).also { it.start() }
+        assertFalse(s.active())
+        s.stop()
+    }
+
+    @Test fun unreachableWithoutAdWizz() {
+        val s = FocusSwitch(ctx).also { it.start() }
+        assertFalse(s.reachable)
+        assertFalse(s.active())
+        s.stop()
+    }
+}

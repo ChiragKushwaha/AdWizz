@@ -23,7 +23,7 @@ private enum class FocusDialog { ADDON, ACCESSIBILITY }
 
 /**
  * "Block Reels & Shorts". Leaving Reels and Shorts needs an Accessibility service, which lives in
- * the separate "AdWizz Reels Blocker" add-on (see FocusAddon): turning the switch on installs the
+ * the separate "AdWizz Add-on" add-on (see FocusAddon): turning the switch on installs the
  * add-on, then asks the user to allow it in Accessibility settings.
  */
 @Composable
@@ -151,7 +151,7 @@ private fun FocusStatus(state: AddonState, installed: Boolean, serviceOn: Boolea
  * Downloads and installs the add-on. The first time, Android needs the user to allow AdWizz to
  * install apps; they come back and tap "Install add-on".
  */
-private fun startAddonInstall(context: Context) {
+internal fun startAddonInstall(context: Context) {
     val app = context.applicationContext
     if (!Updater.canInstall(app)) {
         runCatching {

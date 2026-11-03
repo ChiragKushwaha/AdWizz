@@ -53,11 +53,13 @@ internal fun ActivityTab() {
                         maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 supportingContent = {
-                    Text(DateUtils.getRelativeTimeSpanString(entry.time).toString(), fontSize = 11.sp)
+                    val app = entry.app?.let { AppNames.label(context, it) }
+                    val time = DateUtils.getRelativeTimeSpanString(entry.time).toString()
+                    Text(if (app != null) "$app · $time" else time, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 trailingContent = {
                     Text(
-                        if (entry.blocked) tr("activity.blocked") else tr("activity.allowed"),
+                        entry.category?.let { categoryLabel(it) } ?: if (entry.blocked) tr("activity.blocked") else tr("activity.allowed"),
                         color = if (entry.blocked) Danger else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 11.sp, fontWeight = if (entry.blocked) FontWeight.Bold else FontWeight.Normal
                     )
@@ -95,8 +97,15 @@ internal fun ActivityTab() {
     }
 }
 
-/** Saves a [QueryLog] (three plain values) across rotation and process death. */
+/** Saves a [QueryLog] (five plain values) across rotation and process death. */
 internal val QueryLogSaver = androidx.compose.runtime.saveable.listSaver<QueryLog?, Any>(
-    save = { q -> if (q == null) emptyList() else listOf(q.domain, q.blocked, q.time) },
-    restore = { l -> if (l.size == 3) QueryLog(l[0] as String, l[1] as Boolean, l[2] as Long) else null },
+    save = { q -> if (q == null) emptyList() else listOf(q.domain, q.blocked, q.time, q.app ?: "", q.category?.name ?: "") },
+    restore = { l ->
+        if (l.size < 3) null
+        else QueryLog(
+            l[0] as String, l[1] as Boolean, l[2] as Long,
+            (l.getOrNull(3) as? String)?.ifEmpty { null },
+            (l.getOrNull(4) as? String)?.ifEmpty { null }?.let { n -> BlockCategory.entries.firstOrNull { it.name == n } },
+        )
+    },
 )

@@ -22,9 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import rocks.chirag.adwizz.data.*
 
-/** The three screens in the bottom bar. Settings and Devices get the whole screen so they're easy to read. */
+/** The screens in the bottom bar. Stats, Settings and Devices get the whole screen so they're easy to read. */
 private enum class Page(val label: String, val tag: String) {
-    HOME("nav.home", "tab_home"), SETTINGS("nav.settings", "tab_settings"), DEVICES("nav.devices", "tab_devices")
+    HOME("nav.home", "tab_home"), STATS("nav.stats", "tab_stats"),
+    SETTINGS("nav.settings", "tab_settings"), DEVICES("nav.devices", "tab_devices")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +65,7 @@ fun AppScreen(onToggle: () -> Unit) {
                                 Icon(
                                     when (s) {
                                         Page.HOME -> Icons.Default.Home
+                                        Page.STATS -> BarChartIcon
                                         Page.SETTINGS -> Icons.Default.Settings
                                         Page.DEVICES -> Icons.Default.Share
                                     }, null
@@ -87,6 +89,7 @@ fun AppScreen(onToggle: () -> Unit) {
             ) { s ->
                 when (s) {
                     Page.HOME -> HomeScreen(status, error, stats, onToggle) { groundY = it }
+                    Page.STATS -> FullScreenPanel { StatsTab() }
                     Page.SETTINGS -> FullScreenPanel { SettingsTab() }
                     Page.DEVICES -> FullScreenPanel { DevicesTab() }
                 }
@@ -101,6 +104,7 @@ private fun HomeScreen(status: Status, error: String?, stats: Stats, onToggle: (
         WizardStage(status, Modifier.onGloballyPositioned { onGround(it.boundsInRoot().bottom) })
         UpdatePanel()
         StatusPanel(status, onToggle)
+        if (status == Status.RUNNING) PausePanel()
         if (status == Status.ERROR && error != null) {
             Text(
                 error, color = MaterialTheme.colorScheme.error,
@@ -125,4 +129,16 @@ private fun HomeScreen(status: Status, error: String?, stats: Stats, onToggle: (
 @Composable
 private fun FullScreenPanel(content: @Composable () -> Unit) {
     PixelPanel(Modifier.fillMaxSize().padding(start = 10.dp, end = 6.dp, bottom = 4.dp)) { content() }
+}
+
+/** Three bars, for the Stats tab (the core icon set has no chart icon). */
+private val BarChartIcon: androidx.compose.ui.graphics.vector.ImageVector by lazy {
+    androidx.compose.ui.graphics.vector.ImageVector.Builder("BarChart", 24.dp, 24.dp, 24f, 24f).apply {
+        addPath(
+            androidx.compose.ui.graphics.vector.PathParser().parsePathString(
+                "M4,20h4v-9h-4zM10,20h4v-16h-4zM16,20h4v-12h-4z"
+            ).toNodes(),
+            fill = androidx.compose.ui.graphics.SolidColor(Color.Black),
+        )
+    }.build()
 }

@@ -72,8 +72,8 @@ class StateRestorationTest : UiTestBase() {
         FocusAddon.dismiss()
         restore.setContent { AdWizzTheme { Column(Modifier.verticalScroll(rememberScrollState())) { ShortVideoSection() } } }
         rule.onNodeWithTag("switch_Block Reels & Shorts").performClick()
-        rule.onNodeWithText("Install the Reels Blocker add-on?").assertIsDisplayed()
+        rule.onNodeWithText("Install the AdWizz add-on?").assertIsDisplayed()
         restore.emulateSavedInstanceStateRestore()
-        rule.onNodeWithText("Install the Reels Blocker add-on?").assertIsDisplayed()
+        rule.onNodeWithText("Install the AdWizz add-on?").assertIsDisplayed()
     }
 }

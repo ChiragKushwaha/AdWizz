@@ -25,6 +25,8 @@ internal fun VpnService.Builder.configureForDns(
     settings: Settings,
     ownPackage: String,
     configureIntent: PendingIntent,
+    /** HTTPS filtering's local proxy port, or null when it's off. */
+    proxyPort: Int? = null,
 ): VpnService.Builder {
     setSession(sessionName)
     setMtu(1500)
@@ -51,6 +53,8 @@ internal fun VpnService.Builder.configureForDns(
     // Excluded apps use the normal network directly, so the VPN isn't their active network.
     settings.excludedApps.forEach { pkg -> runCatching { addDisallowedApplication(pkg) } }   // throws if uninstalled
     if (Build.VERSION.SDK_INT >= 29) setMetered(false)
+    // Apps that follow the system proxy (browsers do) send web traffic to HTTPS filtering.
+    if (proxyPort != null && Build.VERSION.SDK_INT >= 29) setHttpProxy(android.net.ProxyInfo.buildDirectProxy("127.0.0.1", proxyPort))
     return this
 }
 

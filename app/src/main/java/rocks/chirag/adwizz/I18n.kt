@@ -72,6 +72,7 @@ class AdWizzApp : Application() {
     override fun onCreate() {
         super.onCreate()
         I18n.init(this)
+        rocks.chirag.adwizz.data.BlockStats.init(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

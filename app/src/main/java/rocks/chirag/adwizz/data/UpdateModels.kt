@@ -13,7 +13,7 @@ data class UpdateInfo(
     val sizeBytes: Long,
 )
 
-/** The latest "AdWizz Reels Blocker" add-on, from the same manifest ("focus"). */
+/** The latest "AdWizz Add-on" add-on, from the same manifest ("focus"). */
 data class AddonInfo(
     val versionCode: Int,
     val apkUrl: String,

@@ -4,6 +4,8 @@
     <!-- Reads the "Block Reels & Shorts" switch from AdWizz. Only granted when both apps are
          signed with the same key. -->
     <uses-permission android:name="${mainAppId}.permission.FOCUS_STATE" />
+    <!-- When AdWizz is uninstalled, the add-on opens Android's "Uninstall this app?" screen for itself. -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <queries>
         <package android:name="${mainAppId}" />
     </queries>
@@ -14,7 +16,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
 
-        <!-- Leaves short-video screens while the switch in AdWizz is on. -->
+        <!-- Leaves short-video screens, skips YouTube ads and mutes Spotify ads, as switched in AdWizz. -->
         <service
             android:name=".ShortVideoBlockerService"
             android:exported="false"
