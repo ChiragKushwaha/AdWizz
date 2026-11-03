@@ -1,10 +1,10 @@
 {
-  "versionCode": 8,
-  "versionName": "1.4.0",
-  "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.4.0/AdWizz.apk",
-  "sha256": "dae819238eb3e680688491df9095cc90f58150b58aa4e46b6f8d9ec573ef4448",
-  "sizeBytes": 2153391,
-  "notes": "Now in 40 languages, 3 million blocked domains including scam and malware sites, and much lower memory use.",
+  "versionCode": 9,
+  "versionName": "1.5.0",
+  "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/v1.5.0/AdWizz.apk",
+  "sha256": "95e247797a555b1f62c7cfb50d947a727bbb4fa988ddd42a85d2546b21398511",
+  "sizeBytes": 2315864,
+  "notes": "New Stats dashboard, YouTube ad skipping, Spotify ad muting, sponsored-content blocking, pause, per-app internet blocking, and HTTPS filtering for browsers (beta).",
   "focus": {
     "versionCode": 3,
     "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.1.0/AdWizzReelsBlocker.apk",
