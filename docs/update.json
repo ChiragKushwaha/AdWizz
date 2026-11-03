@@ -6,9 +6,9 @@
   "sizeBytes": 2153391,
   "notes": "Now in 40 languages, 3 million blocked domains including scam and malware sites, and much lower memory use.",
   "focus": {
-    "versionCode": 2,
-    "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.0.1/AdWizzReelsBlocker.apk",
-    "sha256": "4c789d8bbac2a329c421aa521b24c1ee306643d0e5b8589daca6364f510d9892",
-    "sizeBytes": 21683
+    "versionCode": 3,
+    "apkUrl": "https://github.com/ChiragKushwaha/AdWizz/releases/download/reels-blocker-v1.1.0/AdWizzReelsBlocker.apk",
+    "sha256": "6ccc994c97a1eb20b6062ca7dd4b701b9f9aac193f68596f8b09e0aa3f9f9ecf",
+    "sizeBytes": 32859
   }
 }
