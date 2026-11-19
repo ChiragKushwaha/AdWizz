@@ -21,7 +21,7 @@ internal class FocusSwitch(private val context: Context, private val onChange: (
         private set
     @Volatile var muteSpotifyAds = false
         private set
-    /** "Block sponsored content": cover sponsored cards in YouTube and Instagram. */
+    /** "Block sponsored content": scroll sponsored cards in YouTube and Instagram out of view. */
     @Volatile var hideSponsored = false
         private set
     /** The add-on does nothing until this time (ms since 1970). */

@@ -35,7 +35,7 @@ object AdRules {
     /** Words on the skip button, used only while an ad is known to be playing. */
     val SKIP_WORDS: List<String> = listOf("Skip")
 
-    /** Apps whose feeds mix in sponsored cards/posts, which the add-on covers up. */
+    /** Apps whose feeds mix in sponsored cards/posts, which the add-on scrolls out of view. */
     val SPONSORED_APPS: Set<String> = YOUTUBE_PACKAGES + "com.instagram.android"
 
     /** The label those apps put on a sponsored card, in the languages we've seen. */

@@ -57,12 +57,18 @@ internal fun HttpsSection() {
     }
     if (on && supported) {
         when (trusted) {
-            true -> Text(tr("https.ready"), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary, modifier = Modifier.testTag("httpsReady"))
+            true -> {
+                Text(tr("https.ready"), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary, modifier = Modifier.testTag("httpsReady"))
+                CertificatePause(context)
+            }
             else -> InstallSteps(context)
         }
         Note(tr("https.firefox"))
-    } else if (!on) Note(tr("https.remove_hint"))
+    } else if (!on) {
+        Note(tr("https.remove_hint"))
+        OutlinedButton(onClick = { openUserCertificates(context) }) { Text(tr("https.open_certificates")) }
+    }
 
     if (confirm) AlertDialog(
         onDismissRequest = { confirm = false },
@@ -76,6 +82,22 @@ internal fun HttpsSection() {
         },
         dismissButton = { TextButton(onClick = { confirm = false }) { Text(tr("common.cancel")) } },
     )
+}
+
+/**
+ * Some banking / payment apps refuse to start while any user certificate is installed, even though
+ * AdWizz never touches their traffic. Android has no "disable" for user certificates and apps can't
+ * remove them, so this takes the user straight to where it can be removed. AdWizz keeps the same
+ * certificate, so putting it back later is the usual install steps (shown once it's gone).
+ */
+@Composable
+private fun CertificatePause(context: Context) {
+    Column(Modifier.padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(tr("https.pause_desc"), style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = { openUserCertificates(context) }, modifier = Modifier.testTag("httpsPause")) {
+            Text(tr("https.pause"))
+        }
+    }
 }
 
 /** The three steps to trust AdWizz's certificate (Android only allows this from its own settings). */

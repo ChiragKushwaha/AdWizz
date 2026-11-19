@@ -41,6 +41,13 @@ internal object MitmSession {
     private const val TAG = "AdWizzHttps"
     private const val MAX_REWRITE = 12 * 1024 * 1024
 
+    /**
+     * A browser that rejects our certificate says so with a TLS alert (bad_certificate, unknown_ca,
+     * certificate_unknown...). A bare "connection closed" is just a socket the browser gave up on
+     * (Chrome races and preconnects several per host) and must not switch filtering off for the host.
+     */
+    internal fun isRefusal(message: String?): Boolean = message?.contains("alert", ignoreCase = true) == true
+
     /** Returns false if the browser rejected our certificate (then that host is tunnelled next time). */
     fun decrypt(client: Socket, host: String, ca: SiteCerts, upstream: Upstream, onAdUrl: (String) -> Unit): Boolean {
         val tls = ca.contextFor(host).socketFactory.createSocket(client, host, client.port, false) as SSLSocket
@@ -49,8 +56,9 @@ internal object MitmSession {
         try {
             tls.startHandshake()
         } catch (e: SSLException) {
-            Log.i(TAG, "Browser refused our certificate for $host: ${e.message}")
-            return false
+            val refused = isRefusal(e.message)
+            Log.i(TAG, (if (refused) "Browser refused our certificate for " else "Handshake dropped for ") + "$host: ${e.message}")
+            return !refused
         }
         tls.use { exchange(it.inputStream, it.outputStream, host, 443, secure = true, upstream, onAdUrl) }
         return true

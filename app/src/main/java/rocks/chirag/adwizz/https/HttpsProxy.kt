@@ -79,6 +79,7 @@ internal class HttpsProxy(
         val host = target.substringBeforeLast(':').trim('[', ']').lowercase()
         val port = target.substringAfterLast(':').toIntOrNull() ?: 443
         if (blocked(host)) {
+            if (rocks.chirag.adwizz.BuildConfig.DEBUG) Log.d(TAG, "BLOCK $host")
             out.write("HTTP/1.1 403 Forbidden\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".toByteArray()); return
         }
         out.write("HTTP/1.1 200 Connection established\r\n\r\n".toByteArray()); out.flush()

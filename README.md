@@ -54,7 +54,7 @@ never arrive. 🪄
 | 🧱 **Bypass barrier** | Apps that sneak around your DNS (hard-coded Google/Cloudflare, DNS-over-HTTPS) get caught |
 | 🎬 **Scroll-stopper** | Optional add-on: backs out of Instagram Reels and YouTube Shorts, closes TikTok, Moj, Josh and Chingari |
 | ⏭️ **Ad skipper** | Optional add-on: taps YouTube's "Skip" the moment it appears, mutes unskippable YouTube ads and Spotify ads (with a guide to Spotify's "Device broadcast status") |
-| 🙈 **Sponsor vanish** | "Block sponsored content": Taboola, Outbrain and 20+ native-ad networks everywhere; with the add-on, sponsored cards in YouTube and Instagram are covered up |
+| 🙈 **Sponsor vanish** | "Block sponsored content": Taboola, Outbrain and 20+ native-ad networks everywhere; with the add-on, sponsored cards in YouTube and Instagram are scrolled out of view |
 | 🔓 **X-ray vision** | Optional HTTPS filtering for browsers (Android 10+): blocks ad URLs, strips YouTube's ads on youtube.com (incognito too) and hides ad boxes on pages. AdWizz's own certificate, its key locked in the phone's secure hardware |
 | 📊 **Crystal ball** | Stats tab: ads, trackers and threats blocked per day and per app (Android 10+), most-blocked names. Counted on the phone only |
 | ⏸️ **Pause** | Pause blocking (or the add-on) for 5 min, 15 min, 1 hour or until you resume |

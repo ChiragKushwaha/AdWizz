@@ -201,3 +201,8 @@ kjfhenoqfyfljo.com
 d3cod80thn7qnd.cloudfront.net
 antiadblocksystems.com
 googletagmanager.com
+
+# Spotify: ad creatives and ad tracking only (music, artwork and the app's API stay on other hosts)
+creativeservice-production.scdn.co
+adeventtracker.spotify.com
+ads-fa.spotify.com

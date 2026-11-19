@@ -11,7 +11,7 @@
 set -euo pipefail
 
 ADB="${ADB:-$(command -v adb || echo "$HOME/Library/Android/sdk/platform-tools/adb")}"
-PKG=rocks.chirag.adwizz
+PKG=rocks.chirag.adwizz.debug   # debug builds use the .debug application id
 PAGES=("https://canyoublockit.com/" "https://canyoublockit.com/extreme-test/")
 # Hosts that must be blocked (kept in sync with CanYouBlockIt.AD_HOSTS in the unit tests).
 AD_HOSTS=(12ezo5v60.com fvcwqkkqmuv.com ybs2ffs7v.com kjfhenoqfyfljo.com d3cod80thn7qnd.cloudfront.net
@@ -52,8 +52,13 @@ else
   green "ok   no pop-under tab opened"
 fi
 
-log=$("$ADB" logcat -d -s AdWizzDns:D | sed -nE 's/.*AdWizzDns: (BLOCK|ALLOW) (.*)/\1 \2/p' | sort -u)
-[[ -n "$log" ]] || { red "No DNS decisions logged — is Chrome using its own Secure DNS?"; exit 1; }
+# DNS lines are "BLOCK|ALLOW <host> <app>"; with HTTPS filtering on, Chrome goes through AdWizz's
+# proxy instead, which logs "BLOCK <host>" or "CONNECT <host> ..." (= allowed). Keep "<verdict> <host>".
+log=$("$ADB" logcat -d -s AdWizzDns:D AdWizzHttps:D \
+  | sed -nE -e 's/.*AdWizzDns: (BLOCK|ALLOW) ([^ ]+).*/\1 \2/p' \
+            -e 's/.*AdWizzHttps: BLOCK ([^ ]+).*/BLOCK \1/p' \
+            -e 's/.*AdWizzHttps: CONNECT ([^ ]+).*/ALLOW \1/p' | sort -u)
+[[ -n "$log" ]] || { red "No DNS or proxy decisions logged — is Chrome using its own Secure DNS?"; exit 1; }
 
 matches() { grep -E "^$1 (.*\.)?$2\$" <<<"$log" || true; }
 for h in "${AD_HOSTS[@]}"; do
@@ -65,7 +70,8 @@ for h in "${AD_HOSTS[@]}"; do
 done
 for h in "${SITE_HOSTS[@]}"; do
   if [[ -n "$(matches BLOCK "${h//./\\.}")" ]]; then red "FAIL site broken: $h was blocked"; fail=1
-  else green "ok   $h reachable"; fi
+  elif [[ -n "$(matches ALLOW "${h//./\\.}")" ]]; then green "ok   $h reachable"
+  else red "FAIL $h was never requested (page didn't load?)"; fail=1; fi
 done
 
 echo

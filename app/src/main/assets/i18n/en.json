@@ -127,6 +127,8 @@
   "settings.apps_excluded": "{count} app(s) excluded — edit",
   "settings.battery_ok": "Battery: unrestricted ✓",
   "settings.battery_opt": "Battery: optimised (may be stopped)",
+  "settings.finance": "Keep banking & payment apps working",
+  "settings.finance_desc": "Banking, UPI and wallet apps skip AdWizz completely, so they never see the VPN, proxy or certificate. Payment pages, card checks and fraud checks are never blocked in other apps either.",
   "settings.bypass": "Block DNS bypass",
   "settings.bypass_desc": "Catches apps that hard-code Google/Cloudflare/etc. DNS or use DNS-over-HTTPS to them.",
   "settings.check": "Check for updates",
@@ -245,7 +247,7 @@
   "uninstall.desc": "Removes AdWizz and its add-on. Android asks you to confirm each one.",
   "uninstall.button": "Uninstall AdWizz and add-on",
   "settings.sponsored": "Block sponsored content",
-  "settings.sponsored_desc": "Removes \"Sponsored stories\" and \"Around the web\" boxes (Taboola, Outbrain and similar) in every app and site. With the add-on, also covers sponsored cards in YouTube and Instagram.",
+  "settings.sponsored_desc": "Removes \"Sponsored stories\" and \"Around the web\" boxes (Taboola, Outbrain and similar) in every app and site. With the add-on, also scrolls sponsored cards in YouTube and Instagram out of view.",
   "spotify.setup_title": "One step in Spotify first",
   "spotify.setup_body": "AdWizz can only tell when Spotify plays an ad if Spotify shares what it's playing. Turn this on once:",
   "spotify.step1": "1. Tap \"Open Spotify settings\" below.",
@@ -272,5 +274,8 @@
   "https.open_security": "Open security settings",
   "https.step3": "3. Choose \"CA certificate\", tap Install anyway, and pick AdWizz-HTTPS.crt from Downloads.",
   "https.firefox": "Firefox: turn on Settings → About Firefox (tap the logo 5 times) → Secret settings → Use third party CA certificates.",
-  "https.remove_hint": "Turned it off? Remove the certificate in Settings → Security → Trusted credentials → User."
+  "https.remove_hint": "Turned it off? Remove the certificate too: tap AdWizz in the list, then Uninstall.",
+  "https.open_certificates": "Open certificate list",
+  "https.pause_desc": "A banking or payment app says a certificate isn't right, or won't open? Some apps refuse to run while any user certificate is installed. Android doesn't let apps switch a certificate off, so remove it while you use that app: tap AdWizz, then Uninstall. AdWizz keeps the same certificate, so putting it back later is the same 3 quick steps.",
+  "https.pause": "Remove certificate for now"
 }

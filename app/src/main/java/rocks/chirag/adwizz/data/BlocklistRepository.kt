@@ -60,8 +60,10 @@ class BlocklistRepository(context: Context) {
         // category so the dashboard can tell an ad from a tracker.
         fun input(id: String): BlocklistIndex.Input? = fileFor(id).takeIf { it.exists() && it.length() > 0 }
             ?.let { f -> BlocklistIndex.Input(id, BlocklistIndex.version(f)) { f.reader() } }
-        fun asset(id: String, name: String) =
-            BlocklistIndex.Input(id, "app${BuildConfig.VERSION_CODE}") { context.assets.open(name).reader() }
+        // Versioned by content, not just the app version: an edited bundled list must rebuild the index.
+        fun asset(id: String, name: String) = BlocklistIndex.Input(
+            id, "app${BuildConfig.VERSION_CODE}-" + context.assets.open(name).use { it.readBytes() }.contentHashCode()
+        ) { context.assets.open(name).reader() }
         val active = activeSources()
         fun inputsFor(vararg groups: SourceGroup) = active.filter { it.group in groups }.mapNotNull { input(it.id) }
 
@@ -76,7 +78,10 @@ class BlocklistRepository(context: Context) {
         if (settings.blockShortVideos) ShortVideoRules.DOMAINS.forEach { extra.add(it) }
         if (settings.blockSponsored) SponsoredRules.DOMAINS.forEach { extra.add(it) }
         ListParser.normalise(settings.customBlocklist).forEach { extra.add(it) }
-        val allowed = DomainSet().apply { ListParser.normalise(settings.allowlist).forEach { add(it) } }
+        val allowed = DomainSet().apply {
+            ListParser.normalise(settings.allowlist).forEach { add(it) }
+            if (settings.protectFinanceApps) FinanceApps.ESSENTIAL_DOMAINS.forEach { add(it) }
+        }
         // Checked in this order (BlockCategory.forLookup's order): the big ad lists also carry many
         // trackers, so threats and trackers go first and each block lands in its truest category.
         return DomainMatcher(arrayOf<DomainLookup>(extra, security, trackers, ads), allowed)

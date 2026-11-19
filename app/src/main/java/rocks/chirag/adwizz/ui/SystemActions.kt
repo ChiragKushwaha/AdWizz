@@ -81,6 +81,16 @@ internal fun open(context: Context, action: String) {
         .onFailure { context.startActivity(Intent(AndroidSettings.ACTION_SETTINGS)) }
 }
 
+/**
+ * Android's "Trusted certificates" list on its User tab, where AdWizz's certificate can be removed
+ * (apps can't remove or switch off a certificate themselves). Not a public action, so fall back to
+ * Security settings on phones that don't have it.
+ */
+internal fun openUserCertificates(context: Context) {
+    runCatching { context.startActivity(Intent("com.android.settings.TRUSTED_CREDENTIALS_USER")) }
+        .onFailure { open(context, AndroidSettings.ACTION_SECURITY_SETTINGS) }
+}
+
 /** Rebuilds the tunnel (needed for routing / excluded-app changes) if protection is on. */
 internal fun restartVpnIfRunning(context: Context) {
     if (VpnState.status.value == Status.RUNNING) {

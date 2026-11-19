@@ -21,6 +21,9 @@ internal fun ProtectionSection() {
     val context = LocalContext.current
     val settings = remember { Settings(context) }
     SectionTitle(tr("settings.protection"))
+    // Finance apps are part of the tunnel setup, and the gateways part of the lists: rebuild both.
+    SettingSwitch(settings, Settings::protectFinanceApps, tr("settings.finance"),
+        tr("settings.finance_desc")) { reload(context); restartVpnIfRunning(context) }
     SettingSwitch(settings, Settings::catchHardcodedDns, tr("settings.bypass"),
         tr("settings.bypass_desc")) { restartVpnIfRunning(context) }
     SettingSwitch(settings, Settings::blockTrackers, tr("settings.trackers"),

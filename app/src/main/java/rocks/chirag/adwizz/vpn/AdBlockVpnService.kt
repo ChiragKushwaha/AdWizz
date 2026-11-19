@@ -78,7 +78,9 @@ class AdBlockVpnService : VpnService() {
 
     private fun establish() {
         val proxyPort = if (settings.httpsFiltering && android.os.Build.VERSION.SDK_INT >= 29) startHttps() else null
-        val pfd = Builder().configureForDns(getString(R.string.app_name), settings, packageName, VpnNotification.openApp(this), proxyPort)
+        val finance = if (settings.protectFinanceApps) rocks.chirag.adwizz.data.FinanceApps.installed(this) else emptySet()
+        Log.i(TAG, "Banking/payment apps skipping the VPN: $finance")
+        val pfd = Builder().configureForDns(getString(R.string.app_name), settings, packageName, VpnNotification.openApp(this), proxyPort, finance)
             .establish() ?: throw IllegalStateException("VPN permission not granted")
         tun = pfd
         val apps = AppResolver(getSystemService(ConnectivityManager::class.java)) { packageManager.getPackagesForUid(it) }

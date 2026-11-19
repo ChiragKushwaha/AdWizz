@@ -83,6 +83,11 @@ class Settings(context: Context) {
         get() = prefs.getBoolean("block_malicious", true)
         set(v) = prefs.edit { putBoolean("block_malicious", v) }
 
+    /** Banking/payment apps skip the VPN, and payment gateways are never blocked. See [FinanceApps]. */
+    var protectFinanceApps: Boolean
+        get() = prefs.getBoolean("protect_finance_apps", true)
+        set(v) = prefs.edit { putBoolean("protect_finance_apps", v) }
+
     /** Package names that bypass the VPN entirely, so they can't see it (and aren't filtered). */
     var excludedApps: Set<String>
         get() = prefs.getStringSet("excluded_apps", emptySet())!!.toSet()

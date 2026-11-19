@@ -16,6 +16,7 @@ import android.widget.Toast
  *  - Block Reels & Shorts: backs out of short-video screens and closes short-video-only apps.
  *  - Skip YouTube ads: taps "Skip" as soon as it shows and mutes ads that can't be skipped.
  *  - Mute Spotify ads: mutes while Spotify plays an ad (from Spotify's own playback broadcasts).
+ *  - Block sponsored content: scrolls sponsored cards in YouTube and Instagram feeds out of view.
  * Paused from AdWizz, it stops receiving events at all. If AdWizz is uninstalled, it asks to be
  * uninstalled too and switches itself off.
  */
@@ -23,7 +24,7 @@ class ShortVideoBlockerService : AccessibilityService() {
     private lateinit var switch: FocusSwitch
     private lateinit var muter: AdMuter
     private lateinit var receivers: AddonReceivers
-    private lateinit var sponsored: SponsoredHider
+    private lateinit var sponsored: SponsoredSkipper
     private val handler = Handler(Looper.getMainLooper())
     private val reels = ReelsBlocker(::leave)
     private var pendingPkg: String? = null
@@ -36,13 +37,13 @@ class ShortVideoBlockerService : AccessibilityService() {
     private val resume = Runnable { apply() }
     /** While a YouTube ad is on, look again regularly: "Skip" appears without a screen change. */
     private val adPoll = Runnable { pollYoutubeAd() }
-    /** Sponsored panels follow the feed: re-checked quickly on scrolls, and while shown. */
+    /** Sponsored cards are looked for once the feed stops moving. */
     private val sponsoredCheck = Runnable { checkSponsored() }
 
     override fun onServiceConnected() {
         watchedEvents = serviceInfo?.eventTypes ?: 0
         muter = AdMuter(getSystemService(AudioManager::class.java))
-        sponsored = SponsoredHider(this)
+        sponsored = SponsoredSkipper(this)
         val spotify = SpotifyAdDetector(
             // postAtTime with a token works on every Android version (postDelayed with one needs 9+).
             schedule = { delay, run -> handler.postAtTime(run, SPOTIFY_TOKEN, SystemClock.uptimeMillis() + delay) },
@@ -67,7 +68,7 @@ class ShortVideoBlockerService : AccessibilityService() {
         setListening(active)
         receivers.listenToSpotify(active && switch.muteSpotifyAds)
         if (!active || !switch.skipYoutubeAds) { handler.removeCallbacks(adPoll); muter.set(AdMuter.Source.YOUTUBE, false) }
-        if (!active || !switch.hideSponsored) { handler.removeCallbacks(sponsoredCheck); sponsored.clear() }
+        if (!active || !switch.hideSponsored) handler.removeCallbacks(sponsoredCheck)
         // A timed pause ends on its own.
         val until = switch.pausedUntil
         if (switch.isPaused() && until != Long.MAX_VALUE) handler.postDelayed(resume, until - System.currentTimeMillis() + 500)
@@ -139,13 +140,10 @@ class ShortVideoBlockerService : AccessibilityService() {
     private fun checkSponsored() {
         val root = rootInActiveWindow
         val pkg = root?.packageName?.toString()
-        if (root == null || pkg !in AdRules.SPONSORED_APPS || !switch.active() || !switch.hideSponsored) {
-            sponsored.clear()   // left the app: never leave panels over another screen
-            return
-        }
-        runCatching { sponsored.update(root) }.onFailure { Log.w(TAG, "Sponsored check failed", it) }
-        // Keep following while panels are up (scrolls without events, or leaving the app).
-        if (sponsored.showing) handler.postDelayed(sponsoredCheck, SPONSORED_POLL_MS)
+        if (root == null || pkg !in AdRules.SPONSORED_APPS || !switch.active() || !switch.hideSponsored) return
+        val skipped = runCatching { sponsored.update(root) }.onFailure { Log.w(TAG, "Sponsored check failed", it) }.getOrDefault(false)
+        // Look again once our swipe has settled: the next card may be sponsored too.
+        if (skipped) handler.postDelayed(sponsoredCheck, SPONSORED_AFTER_SKIP_MS)
     }
 
     private fun leave(action: Int) {
@@ -176,7 +174,6 @@ class ShortVideoBlockerService : AccessibilityService() {
         handler.removeCallbacksAndMessages(null)
         if (::receivers.isInitialized) receivers.stop()
         if (::muter.isInitialized) muter.releaseAll()
-        if (::sponsored.isInitialized) sponsored.clear()
     }
 
     override fun onInterrupt() {
@@ -196,8 +193,9 @@ class ShortVideoBlockerService : AccessibilityService() {
         private const val COOLDOWN_MS = 1000L
         private const val TOAST_GAP_MS = 4000L
         private const val AD_POLL_MS = 700L
-        private const val SPONSORED_MS = 30L
-        private const val SPONSORED_POLL_MS = 400L
+        /** Wait for the feed to stop moving (a fling sends scroll events until it settles). */
+        private const val SPONSORED_MS = 350L
+        private const val SPONSORED_AFTER_SKIP_MS = 1200L
         private const val PREFS = "addon"
         private const val KEY_OFF = "off_handled"
         private val SPOTIFY_TOKEN = Any()

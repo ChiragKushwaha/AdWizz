@@ -245,7 +245,7 @@
   "uninstall.desc": "Elimină AdWizz și suplimentul său. Android vă cere să le confirmați pe fiecare.",
   "uninstall.button": "Dezinstalați AdWizz și suplimentul",
   "settings.sponsored": "Blocați conținutul sponsorizat",
-  "settings.sponsored_desc": "Removes \"Sponsored stories\" and \"Around the web\" boxes (Taboola, Outbrain and similar) in every app and site. With the add-on, also covers sponsored cards in YouTube and Instagram.",
+  "settings.sponsored_desc": "Removes \"Sponsored stories\" and \"Around the web\" boxes (Taboola, Outbrain and similar) in every app and site. With the add-on, also scrolls sponsored cards in YouTube and Instagram out of view.",
   "spotify.setup_title": "Mai întâi, un pas în Spotify",
   "spotify.setup_body": "AdWizz poate spune numai când Spotify redă un anunț dacă Spotify împărtășește ceea ce redă. Activați aceasta o dată:",
   "spotify.step1": "1. Atingeți „Deschideți setările Spotify” de mai jos.",

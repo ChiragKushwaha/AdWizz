@@ -27,6 +27,8 @@ internal fun VpnService.Builder.configureForDns(
     configureIntent: PendingIntent,
     /** HTTPS filtering's local proxy port, or null when it's off. */
     proxyPort: Int? = null,
+    /** Banking/payment apps found on the phone: they skip the VPN (and so the proxy) entirely. */
+    financeApps: Set<String> = emptySet(),
 ): VpnService.Builder {
     setSession(sessionName)
     setMtu(1500)
@@ -51,7 +53,7 @@ internal fun VpnService.Builder.configureForDns(
     // Our own traffic (list downloads, upstream DNS) must never loop back into the tunnel.
     runCatching { addDisallowedApplication(ownPackage) }
     // Excluded apps use the normal network directly, so the VPN isn't their active network.
-    settings.excludedApps.forEach { pkg -> runCatching { addDisallowedApplication(pkg) } }   // throws if uninstalled
+    (settings.excludedApps + financeApps).forEach { pkg -> runCatching { addDisallowedApplication(pkg) } }   // throws if uninstalled
     if (Build.VERSION.SDK_INT >= 29) setMetered(false)
     // Apps that follow the system proxy (browsers do) send web traffic to HTTPS filtering.
     if (proxyPort != null && Build.VERSION.SDK_INT >= 29) setHttpProxy(android.net.ProxyInfo.buildDirectProxy("127.0.0.1", proxyPort))
